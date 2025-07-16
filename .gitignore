@@ -35,6 +35,7 @@
 # build outputs
 /dist/
 /build/
+/out/
 
 # turbo cache
 /.turbo/

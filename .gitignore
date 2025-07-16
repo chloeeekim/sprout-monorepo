@@ -28,3 +28,13 @@
 
 # docs (기획 문서 등)
 /docs/
+
+# dependencies
+/node_modules/
+
+# build outputs
+/dist/
+/build/
+
+# turbo cache
+/.turbo/

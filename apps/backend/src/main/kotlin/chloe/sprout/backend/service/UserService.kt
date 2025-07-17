@@ -1,6 +1,7 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.auth.JwtTokenProvider
+import chloe.sprout.backend.domain.Refresh
 import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.UserLoginRequest
 import chloe.sprout.backend.dto.UserLoginResponse
@@ -9,18 +10,22 @@ import chloe.sprout.backend.dto.UserSignupResponse
 import chloe.sprout.backend.exception.user.InvalidPasswordException
 import chloe.sprout.backend.exception.user.UserAlreadyExistsException
 import chloe.sprout.backend.exception.user.UserNotFoundException
+import chloe.sprout.backend.repository.RefreshRepository
 import chloe.sprout.backend.repository.UserRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.http.ResponseCookie
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val jwtTokenProvider: JwtTokenProvider
+    private val jwtTokenProvider: JwtTokenProvider,
+    private val refreshRepository: RefreshRepository
 ) {
     @Transactional
     fun signup(request: UserSignupRequest): UserSignupResponse {
@@ -57,9 +62,24 @@ class UserService(
             throw InvalidPasswordException()
         }
 
-        // JWT token 발급 후 header에 추가
-        val token = jwtTokenProvider.generateToken(user.email)
-        httpResponse.setHeader("Authorization", "Bearer $token")
+        // JWT access token 발급 후 header에 추가
+        val accessToken = jwtTokenProvider.generateAccessToken(user.email)
+        httpResponse.setHeader("Authorization", "Bearer $accessToken")
+
+        // JWT refresh token 발급 후 cookie에 추가
+        val refreshToken = jwtTokenProvider.generateRefreshToken(user.email)
+        val refresh = Refresh(email = user.email, refreshToken = refreshToken)
+        refreshRepository.save(refresh)
+
+        val cookie = ResponseCookie.from("refreshToken", refreshToken).apply {
+            httpOnly(true)
+            secure(true)
+            path("/")
+            maxAge(Duration.ofDays(14))
+            sameSite("Lax")
+        }.build()
+
+        httpResponse.addHeader("Set-Cookie", cookie.toString())
 
         // response DTO로 변환 후 반환
         return UserLoginResponse.from(user)

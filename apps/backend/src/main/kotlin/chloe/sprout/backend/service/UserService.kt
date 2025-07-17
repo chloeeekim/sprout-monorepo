@@ -6,9 +6,9 @@ import chloe.sprout.backend.dto.UserLoginRequest
 import chloe.sprout.backend.dto.UserLoginResponse
 import chloe.sprout.backend.dto.UserSignupRequest
 import chloe.sprout.backend.dto.UserSignupResponse
-import chloe.sprout.backend.exception.InvalidPasswordException
-import chloe.sprout.backend.exception.UserAlreadyExistsException
-import chloe.sprout.backend.exception.UserNotFoundException
+import chloe.sprout.backend.exception.user.InvalidPasswordException
+import chloe.sprout.backend.exception.user.UserAlreadyExistsException
+import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.UserRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -26,7 +26,7 @@ class UserService(
     fun signup(request: UserSignupRequest): UserSignupResponse {
         // email 중복 확인
         userRepository.findByEmail(request.email)?.let {
-            throw UserAlreadyExistsException("이미 존재하는 이메일입니다.")
+            throw UserAlreadyExistsException()
         }
 
         // password 암호화
@@ -50,11 +50,11 @@ class UserService(
     fun login(request: UserLoginRequest, httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): UserLoginResponse {
         // 사용자 확인
         val user = userRepository.findByEmail(request.email)
-            ?: throw UserNotFoundException("사용자를 찾을 수 없습니다.")
+            ?: throw UserNotFoundException()
 
         // 비밀번호 일치 확인
         if (!passwordEncoder.matches(request.password, user.password)) {
-            throw InvalidPasswordException("비밀번호가 일치하지 않습니다.")
+            throw InvalidPasswordException()
         }
 
         // JWT token 발급 후 header에 추가

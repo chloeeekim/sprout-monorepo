@@ -1,9 +1,9 @@
 package chloe.sprout.backend.auth
 
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.UnsupportedJwtException
-import io.jsonwebtoken.security.SignatureException
+import chloe.sprout.backend.exception.user.InvalidAccessTokenException
+import chloe.sprout.backend.exception.user.LoginRequiredException
+import chloe.sprout.backend.exception.user.MissingAccessTokenException
+import chloe.sprout.backend.service.RedisService
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -16,7 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
-    private val customUserDetailsService: CustomUserDetailsService
+    private val customUserDetailsService: CustomUserDetailsService,
+    private val redisService: RedisService
 ) : OncePerRequestFilter() {
 
     override fun doFilterInternal(
@@ -25,24 +26,27 @@ class JwtAuthenticationFilter(
         filterChain: FilterChain
     ) {
         try {
-            val jwt = getJwtFromRequest(request)
-            if (jwt != null && jwtTokenProvider.validateToken(jwt)) {
-                val email = jwtTokenProvider.getEmailFromToken(jwt)
+            getJwtFromRequest(request)?.let {
+                // denylist에 등록된 경우
+                val denylist = redisService.getDenylist(it)
+                if (denylist != null && denylist == "logout") {
+                    throw LoginRequiredException()
+                }
+
+                // access token이 유효하지 않은 경우
+                if (!jwtTokenProvider.validateToken(it)) {
+                    throw InvalidAccessTokenException()
+                }
+
+                // 인증 정보 등록
+                val email = jwtTokenProvider.getEmailFromToken(it)
                 val userDetails = customUserDetailsService.loadUserByUsername(email)
                 val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
                 authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
                 SecurityContextHolder.getContext().authentication = authentication
-            }
-        } catch (ex: SignatureException) {
-            logger.error("Invalid JWT signature", ex)
-        } catch (ex: MalformedJwtException) {
-            logger.error("Invalid JWT token", ex)
-        } catch (ex: ExpiredJwtException) {
-            logger.error("Expired JWT token", ex)
-        } catch (ex: UnsupportedJwtException) {
-            logger.error("Unsupported JWT token", ex)
-        } catch (ex: IllegalArgumentException) {
-            logger.error("JWT claims string is empty", ex)
+            } ?: throw MissingAccessTokenException()
+        } catch (ex: Exception) {
+            throw InvalidAccessTokenException()
         }
 
         filterChain.doFilter(request, response)

@@ -1,12 +1,11 @@
 package chloe.sprout.backend.auth
 
 import chloe.sprout.backend.property.JwtProperties
-import chloe.sprout.backend.service.RefreshService
+import chloe.sprout.backend.service.RedisService
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import org.springframework.boot.context.properties.EnableConfigurationProperties
-import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.util.*
 
@@ -14,7 +13,7 @@ import java.util.*
 @EnableConfigurationProperties(JwtProperties::class)
 class JwtTokenProvider(
     private val jwtProperties: JwtProperties,
-    private val refreshService: RefreshService
+    private val redisService: RedisService
 ) {
     private val key = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
@@ -48,6 +47,10 @@ class JwtTokenProvider(
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body.subject
     }
 
+    fun getExpiration(token: String): Date {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).body.expiration
+    }
+
     fun validateToken(token: String): Boolean {
         return try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
@@ -58,7 +61,7 @@ class JwtTokenProvider(
     }
 
     fun validateRefreshToken(email: String, token: String): Boolean {
-        val storedRefreshToken = refreshService.getRefreshToken(email)
+        val storedRefreshToken = redisService.getRefreshToken(email)
         return storedRefreshToken == token && validateToken(token)
     }
 

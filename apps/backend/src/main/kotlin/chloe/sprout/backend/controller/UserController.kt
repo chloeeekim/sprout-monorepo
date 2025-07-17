@@ -36,4 +36,10 @@ class UserController(
         userService.refresh(httpRequest, httpResponse)
         return ResponseEntity.ok().build()
     }
+
+    @PostMapping("/logout")
+    fun logout(request: HttpServletRequest): ResponseEntity<Void> {
+        userService.logout(request)
+        return ResponseEntity.ok().build()
+    }
 }

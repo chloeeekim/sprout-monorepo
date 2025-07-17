@@ -15,13 +15,14 @@ import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import java.util.*
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val refreshService: RefreshService
+    private val redisService: RedisService
 ) {
     @Transactional
     fun signup(request: UserSignupRequest): UserSignupResponse {
@@ -88,6 +89,21 @@ class UserService(
         addRefreshTokenToCookie(email, response)
     }
 
+    @Transactional
+    fun logout(request: HttpServletRequest) {
+        val token = request.getHeader("Authorization").substring(7)
+        val date = jwtTokenProvider.getExpiration(token)
+        val now = Date().time
+        val expiration = date.time - now
+        val email = jwtTokenProvider.getEmailFromToken(token)
+
+        // refresh token 삭제
+        redisService.deleteRefreshToken(email)
+
+        // access token을 denylist에 추가
+        redisService.saveDenylist(token, Duration.ofMinutes(expiration))
+    }
+
     private fun addAccessTokenToHeader(email: String, httpResponse: HttpServletResponse) {
         val accessToken = jwtTokenProvider.generateAccessToken(email)
         httpResponse.setHeader("Authorization", "Bearer $accessToken")
@@ -96,7 +112,7 @@ class UserService(
     private fun addRefreshTokenToCookie(email: String, httpResponse: HttpServletResponse) {
         val refreshToken = jwtTokenProvider.generateRefreshToken(email)
 
-        refreshService.saveRefreshToken(email, refreshToken)
+        redisService.saveRefreshToken(email, refreshToken)
 
         val cookie = ResponseCookie.from("refreshToken", refreshToken).apply {
             httpOnly(true)

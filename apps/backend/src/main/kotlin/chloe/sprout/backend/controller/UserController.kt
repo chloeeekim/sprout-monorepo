@@ -4,15 +4,15 @@ import chloe.sprout.backend.dto.UserLoginRequest
 import chloe.sprout.backend.dto.UserLoginResponse
 import chloe.sprout.backend.dto.UserSignupRequest
 import chloe.sprout.backend.dto.UserSignupResponse
-import chloe.sprout.backend.exception.InvalidPasswordException
-import chloe.sprout.backend.exception.UserAlreadyExistsException
-import chloe.sprout.backend.exception.UserNotFoundException
 import chloe.sprout.backend.service.UserService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @RequestMapping("/api/users")
@@ -29,20 +29,5 @@ class UserController(
     fun login(@RequestBody request: UserLoginRequest, httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): ResponseEntity<UserLoginResponse> {
         val response = userService.login(request, httpRequest, httpResponse)
         return ResponseEntity.ok(response)
-    }
-
-    @ExceptionHandler(UserAlreadyExistsException::class)
-    fun handleUserAlreadyExistsException(e: UserAlreadyExistsException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.message)
-    }
-
-    @ExceptionHandler(UserNotFoundException::class)
-    fun handleUserNotFoundException(e: UserNotFoundException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.message)
-    }
-
-    @ExceptionHandler(InvalidPasswordException::class)
-    fun handleInvalidPasswordException(e: InvalidPasswordException): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.message)
     }
 }

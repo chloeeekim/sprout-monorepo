@@ -1,10 +1,12 @@
 spring:
   application:
     name: backend
+  config:
+    import: application-secret.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/sprout_db
-    username: sprout_user
-    password: {{password}}
+    username: secret
+    password: secret
   jpa:
     hibernate:
       ddl-auto: update

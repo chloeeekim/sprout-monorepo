@@ -38,3 +38,6 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Secret Properties ###
+/src/main/resources/application-secret.yml

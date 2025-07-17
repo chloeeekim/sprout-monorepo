@@ -1,24 +1,38 @@
 package chloe.sprout.backend.auth
 
+import chloe.sprout.backend.property.JwtProperties
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
+@EnableConfigurationProperties(JwtProperties::class)
 class JwtTokenProvider(
-    @Value("\${jwt.secret}")
-    private val jwtSecret: String,
-    @Value("\${jwt.expiration-ms}")
-    private val jwtExpirationMs: Long
+    private val jwtProperties: JwtProperties,
+    private val redisTemplate: RedisTemplate<String, String>
 ) {
-    private val key = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
+    private val key = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
-    fun generateToken(email: String): String {
+    fun generateAccessToken(email: String): String {
         val now = Date()
-        val expiryDate = Date(now.time + jwtExpirationMs)
+        val expiryDate = Date(now.time + jwtProperties.accessExpiration)
+
+        return Jwts.builder().apply {
+            setHeader(createHeader())
+            setSubject(email)
+            setIssuedAt(now)
+            setExpiration(expiryDate)
+            signWith(key, SignatureAlgorithm.HS256)
+        }.compact()
+    }
+
+    fun generateRefreshToken(email: String): String {
+        val now = Date()
+        val expiryDate = Date(now.time + jwtProperties.refreshExpiration)
 
         return Jwts.builder().apply {
             setHeader(createHeader())
@@ -40,6 +54,11 @@ class JwtTokenProvider(
         } catch (ex: Exception) {
             false
         }
+    }
+
+    fun validateRefreshToken(email: String, token: String): Boolean {
+        val storedRefreshToken = redisTemplate.opsForValue().get(email)
+        return storedRefreshToken == token && validateToken(token)
     }
 
     private fun createHeader(): MutableMap<String, Any> {

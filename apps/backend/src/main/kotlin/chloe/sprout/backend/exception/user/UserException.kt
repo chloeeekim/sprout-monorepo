@@ -9,5 +9,6 @@ class InvalidPasswordException() : CustomException(UserErrorCode.INVALID_PASSWOR
 class UserAlreadyExistsException() : CustomException(UserErrorCode.USER_ALREADY_EXISTS)
 class InvalidAccessTokenException() : CustomException(UserErrorCode.INVALID_ACCESS_TOKEN)
 class InvalidRefreshTokenException() : CustomException(UserErrorCode.INVALID_REFRESH_TOKEN)
+class MissingAccessTokenException() : CustomException(UserErrorCode.MISSING_ACCESS_TOKEN)
 class MissingRefreshTokenException() : CustomException(UserErrorCode.MISSING_REFRESH_TOKEN)
 class LoginRequiredException() : CustomException(UserErrorCode.LOGIN_REQUIRED)

@@ -1,6 +1,8 @@
 package chloe.sprout.backend.config
 
 import chloe.sprout.backend.auth.JwtAuthenticationFilter
+import chloe.sprout.backend.property.SecurityAllowlistProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -13,10 +15,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(SecurityAllowlistProperties::class)
 class SecurityConfig(
-    private val jwtAuthFilter: JwtAuthenticationFilter
+    private val jwtAuthFilter: JwtAuthenticationFilter,
+    private val securityAllowlistProperties: SecurityAllowlistProperties
 ) {
-
     @Bean
     fun passwordEncoder(): PasswordEncoder {
         return BCryptPasswordEncoder()
@@ -39,16 +42,10 @@ class SecurityConfig(
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
             .authorizeHttpRequests {
                 it
-                    .requestMatchers(*AUTH_ALLOWLIST).permitAll()
+                    .requestMatchers(*securityAllowlistProperties.allowlist.toTypedArray()).permitAll()
                     .anyRequest().permitAll()
             }
 
         return http.build()
-    }
-
-    companion object {
-        private val AUTH_ALLOWLIST = arrayOf(
-            "/api/login", "/api/signup"
-        )
     }
 }

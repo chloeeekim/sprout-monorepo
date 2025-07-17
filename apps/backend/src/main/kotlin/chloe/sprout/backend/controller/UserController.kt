@@ -30,4 +30,10 @@ class UserController(
         val response = userService.login(request, httpRequest, httpResponse)
         return ResponseEntity.ok(response)
     }
+
+    @PostMapping("/refresh")
+    fun refresh(httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): ResponseEntity<Void> {
+        userService.refresh(httpRequest, httpResponse)
+        return ResponseEntity.ok().build()
+    }
 }

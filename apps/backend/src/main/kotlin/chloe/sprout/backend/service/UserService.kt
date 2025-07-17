@@ -1,16 +1,12 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.auth.JwtTokenProvider
-import chloe.sprout.backend.domain.Refresh
 import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.UserLoginRequest
 import chloe.sprout.backend.dto.UserLoginResponse
 import chloe.sprout.backend.dto.UserSignupRequest
 import chloe.sprout.backend.dto.UserSignupResponse
-import chloe.sprout.backend.exception.user.InvalidPasswordException
-import chloe.sprout.backend.exception.user.UserAlreadyExistsException
-import chloe.sprout.backend.exception.user.UserNotFoundException
-import chloe.sprout.backend.repository.RefreshRepository
+import chloe.sprout.backend.exception.user.*
 import chloe.sprout.backend.repository.UserRepository
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -63,13 +59,44 @@ class UserService(
         }
 
         // JWT access token 발급 후 header에 추가
-        val accessToken = jwtTokenProvider.generateAccessToken(user.email)
-        httpResponse.setHeader("Authorization", "Bearer $accessToken")
+        addAccessTokenToHeader(user.email, httpResponse)
 
-        // JWT refresh token 발급 후 cookie에 추가
-        val refreshToken = jwtTokenProvider.generateRefreshToken(user.email)
-        val refresh = Refresh(email = user.email, refreshToken = refreshToken)
-        refreshRepository.save(refresh)
+        // JWT refresh token 발급 후 cookie에 추가 & redis에 저장
+        addRefreshTokenToCookie(user.email, httpResponse)
+
+        // response DTO로 변환 후 반환
+        return UserLoginResponse.from(user)
+    }
+
+    @Transactional
+    fun refresh(request: HttpServletRequest, response: HttpServletResponse) {
+        // request cookie에서 refresh token 확인
+        val refreshToken = extractRefreshTokenFromCookie(request)
+            ?: throw MissingRefreshTokenException()
+
+        val email = jwtTokenProvider.getEmailFromToken(refreshToken)
+
+        // refresh token이 유효한지 확인
+        if (!jwtTokenProvider.validateRefreshToken(email, refreshToken)) {
+            throw InvalidRefreshTokenException()
+        }
+
+        // 새로운 access token 발급 후 header에 추가
+        addAccessTokenToHeader(email, response)
+
+        // 새로운 refresh token 발급 후 cookie에 추가 & redis에 저장
+        addRefreshTokenToCookie(email, response)
+    }
+
+    private fun addAccessTokenToHeader(email: String, httpResponse: HttpServletResponse) {
+        val accessToken = jwtTokenProvider.generateAccessToken(email)
+        httpResponse.setHeader("Authorization", "Bearer $accessToken")
+    }
+
+    private fun addRefreshTokenToCookie(email: String, httpResponse: HttpServletResponse) {
+        val refreshToken = jwtTokenProvider.generateRefreshToken(email)
+
+        refreshService.saveRefreshToken(email, refreshToken)
 
         val cookie = ResponseCookie.from("refreshToken", refreshToken).apply {
             httpOnly(true)
@@ -80,8 +107,10 @@ class UserService(
         }.build()
 
         httpResponse.addHeader("Set-Cookie", cookie.toString())
+    }
 
-        // response DTO로 변환 후 반환
-        return UserLoginResponse.from(user)
+    private fun extractRefreshTokenFromCookie(request: HttpServletRequest): String? {
+        val cookies = request.cookies
+        return cookies?.firstOrNull { it.name == "refreshToken" }?.value
     }
 }

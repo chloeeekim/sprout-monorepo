@@ -5,8 +5,8 @@ spring:
     import: application-secret.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/sprout_db
-    username: secret
-    password: secret
+    username: ${db.username}
+    password: ${db.password}
   jpa:
     hibernate:
       ddl-auto: update

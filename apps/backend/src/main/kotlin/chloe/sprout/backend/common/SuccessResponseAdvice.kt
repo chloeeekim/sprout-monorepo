@@ -36,7 +36,7 @@ class SuccessResponseAdvice : ResponseBodyAdvice<Any> {
             ApiResponse.success(
                 status = status,
                 data = body,
-                path = request.uri.toString()
+                path = request.uri.path
             )
         } else {
             body

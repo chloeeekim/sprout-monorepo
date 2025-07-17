@@ -25,7 +25,7 @@ class UserService(
     private val userRepository: UserRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val refreshRepository: RefreshRepository
+    private val refreshService: RefreshService
 ) {
     @Transactional
     fun signup(request: UserSignupRequest): UserSignupResponse {

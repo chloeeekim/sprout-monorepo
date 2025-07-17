@@ -1,6 +1,7 @@
 package chloe.sprout.backend.auth
 
 import chloe.sprout.backend.property.JwtProperties
+import chloe.sprout.backend.service.RefreshService
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
@@ -13,7 +14,7 @@ import java.util.*
 @EnableConfigurationProperties(JwtProperties::class)
 class JwtTokenProvider(
     private val jwtProperties: JwtProperties,
-    private val redisTemplate: RedisTemplate<String, String>
+    private val refreshService: RefreshService
 ) {
     private val key = Keys.hmacShaKeyFor(jwtProperties.secret.toByteArray())
 
@@ -57,7 +58,7 @@ class JwtTokenProvider(
     }
 
     fun validateRefreshToken(email: String, token: String): Boolean {
-        val storedRefreshToken = redisTemplate.opsForValue().get(email)
+        val storedRefreshToken = refreshService.getRefreshToken(email)
         return storedRefreshToken == token && validateToken(token)
     }
 

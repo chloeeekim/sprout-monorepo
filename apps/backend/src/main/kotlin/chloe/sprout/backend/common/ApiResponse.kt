@@ -16,8 +16,8 @@ data class ApiResponse<T>(
             return ApiResponse(true, status, status.toString(), message, LocalDateTime.now(), path, data)
         }
 
-        fun <T> error(status: Int, message: String, code: String, path: String? = null): ApiResponse<T> {
-            return ApiResponse(false, status, code, message, LocalDateTime.now(), path, null)
+        fun <T> error(status: Int, data: T? = null, message: String, code: String, path: String? = null): ApiResponse<T> {
+            return ApiResponse(false, status, code, message, LocalDateTime.now(), path, data)
         }
     }
 }

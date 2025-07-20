@@ -19,7 +19,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.DisplayName

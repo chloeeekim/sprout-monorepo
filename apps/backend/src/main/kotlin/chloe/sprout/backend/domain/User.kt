@@ -19,7 +19,7 @@ class User(
 
     @Column(nullable = false, length = 50)
     val name: String
-) : AbstractAuditableEntity() {
+) : AbstractPersistableEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     lateinit var id: UUID

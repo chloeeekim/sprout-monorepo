@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
@@ -19,7 +20,8 @@ class JwtAuthenticationFilter(
     private val jwtTokenProvider: JwtTokenProvider,
     private val customUserDetailsService: CustomUserDetailsService,
     private val redisService: RedisService,
-    private val securityAllowlistProperties: SecurityAllowlistProperties
+    private val securityAllowlistProperties: SecurityAllowlistProperties,
+    private val authenticationEntryPoint: CustomAuthenticationEntryPoint
 ) : OncePerRequestFilter() {
 
     // 인증이 필요 없는 경로는 제외
@@ -33,27 +35,32 @@ class JwtAuthenticationFilter(
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        getJwtFromRequest(request)?.let {
-            // denylist에 등록된 경우
-            val denylist = redisService.getDenylist(it)
-            if (denylist != null && denylist == "logout") {
-                throw LoginRequiredException()
-            }
+        try {
+            getJwtFromRequest(request)?.let {
+                // denylist에 등록된 경우
+                val denylist = redisService.getDenylist(it)
+                if (denylist != null && denylist == "logout") {
+                    throw LoginRequiredException()
+                }
 
-            // access token이 유효하지 않은 경우
-            if (!jwtTokenProvider.validateToken(it)) {
-                throw InvalidAccessTokenException()
-            }
+                // access token이 유효하지 않은 경우
+                if (!jwtTokenProvider.validateToken(it)) {
+                    throw InvalidAccessTokenException()
+                }
 
-            // 인증 정보 등록
-            val email = jwtTokenProvider.getEmailFromToken(it)
-            val userDetails = customUserDetailsService.loadUserByUsername(email)
-            val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
-            authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
-            SecurityContextHolder.getContext().authentication = authentication
-        } ?: throw MissingAccessTokenException()
+                // 인증 정보 등록
+                val email = jwtTokenProvider.getEmailFromToken(it)
+                val userDetails = customUserDetailsService.loadUserByUsername(email)
+                val authentication = UsernamePasswordAuthenticationToken(userDetails, null, userDetails.authorities)
+                authentication.details = WebAuthenticationDetailsSource().buildDetails(request)
+                SecurityContextHolder.getContext().authentication = authentication
+            } ?: throw MissingAccessTokenException()
 
-        filterChain.doFilter(request, response)
+            filterChain.doFilter(request, response)
+        } catch (ex: AuthenticationException) {
+            SecurityContextHolder.clearContext()
+            authenticationEntryPoint.commence(request, response, ex)
+        }
     }
 
     private fun getJwtFromRequest(request: HttpServletRequest): String? {

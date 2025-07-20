@@ -51,7 +51,7 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it
                     .requestMatchers(*securityAllowlistProperties.allowlist.toTypedArray()).permitAll()
-                    .anyRequest().permitAll()
+                    .anyRequest().authenticated()
             }
 
         return http.build()

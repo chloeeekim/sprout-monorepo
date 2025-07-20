@@ -1,11 +1,20 @@
 package chloe.sprout.backend.dto
 
 import chloe.sprout.backend.domain.User
+import jakarta.validation.constraints.Email
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.NotNull
 import java.util.*
 
 data class UserSignupRequest(
+    @field:Email
+    @field:NotBlank
     val email: String,
+
+    @field:NotBlank
     val password: String,
+
+    @field:NotBlank
     val name: String
 )
 
@@ -26,7 +35,11 @@ data class UserSignupResponse(
 }
 
 data class UserLoginRequest(
+    @field:Email
+    @field:NotBlank
     val email: String,
+
+    @field:NotBlank
     val password: String
 )
 

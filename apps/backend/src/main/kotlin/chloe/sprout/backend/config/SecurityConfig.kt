@@ -1,5 +1,7 @@
 package chloe.sprout.backend.config
 
+import chloe.sprout.backend.auth.CustomAccessDeniedHandler
+import chloe.sprout.backend.auth.CustomAuthenticationEntryPoint
 import chloe.sprout.backend.auth.JwtAuthenticationFilter
 import chloe.sprout.backend.property.SecurityAllowlistProperties
 import org.springframework.context.annotation.Bean
@@ -16,7 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthenticationFilter,
-    private val securityAllowlistProperties: SecurityAllowlistProperties
+    private val securityAllowlistProperties: SecurityAllowlistProperties,
+    private val authenticationEntryPoint: CustomAuthenticationEntryPoint,
+    private val accessDeniedHandler: CustomAccessDeniedHandler
 ) {
     @Bean
     fun passwordEncoder(): PasswordEncoder {
@@ -38,6 +42,12 @@ class SecurityConfig(
             .httpBasic { it.disable() }
             // JWT AuthFilter를 UsernamePasswordAuthenticationFilter 앞에 추가
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)
+            // Error Response Format 통일을 위해 Exception Handling 추가
+            .exceptionHandling {
+                it
+                    .authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler)
+            }
             .authorizeHttpRequests {
                 it
                     .requestMatchers(*securityAllowlistProperties.allowlist.toTypedArray()).permitAll()

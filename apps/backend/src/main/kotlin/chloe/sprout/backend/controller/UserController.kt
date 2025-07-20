@@ -7,6 +7,7 @@ import chloe.sprout.backend.dto.UserSignupResponse
 import chloe.sprout.backend.service.UserService
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,13 +21,13 @@ class UserController(
     private val userService: UserService
 ) {
     @PostMapping("/signup")
-    fun signup(@RequestBody request: UserSignupRequest): ResponseEntity<UserSignupResponse> {
+    fun signup(@RequestBody @Valid request: UserSignupRequest): ResponseEntity<UserSignupResponse> {
         val response = userService.signup(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
     @PostMapping("/login")
-    fun login(@RequestBody request: UserLoginRequest, httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): ResponseEntity<UserLoginResponse> {
+    fun login(@RequestBody @Valid request: UserLoginRequest, httpRequest: HttpServletRequest, httpResponse: HttpServletResponse): ResponseEntity<UserLoginResponse> {
         val response = userService.login(request, httpRequest, httpResponse)
         return ResponseEntity.ok(response)
     }

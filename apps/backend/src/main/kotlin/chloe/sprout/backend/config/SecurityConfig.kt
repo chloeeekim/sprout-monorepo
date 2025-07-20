@@ -2,7 +2,6 @@ package chloe.sprout.backend.config
 
 import chloe.sprout.backend.auth.JwtAuthenticationFilter
 import chloe.sprout.backend.property.SecurityAllowlistProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -15,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableConfigurationProperties(SecurityAllowlistProperties::class)
 class SecurityConfig(
     private val jwtAuthFilter: JwtAuthenticationFilter,
     private val securityAllowlistProperties: SecurityAllowlistProperties

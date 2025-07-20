@@ -1,9 +1,8 @@
 package chloe.sprout.backend.auth
 
-import chloe.sprout.backend.config.SecurityConfig
-import chloe.sprout.backend.exception.user.InvalidAccessTokenException
-import chloe.sprout.backend.exception.user.LoginRequiredException
-import chloe.sprout.backend.exception.user.MissingAccessTokenException
+import chloe.sprout.backend.exception.auth.InvalidAccessTokenException
+import chloe.sprout.backend.exception.auth.LoginRequiredException
+import chloe.sprout.backend.exception.auth.MissingAccessTokenException
 import chloe.sprout.backend.property.SecurityAllowlistProperties
 import chloe.sprout.backend.service.RedisService
 import jakarta.servlet.FilterChain

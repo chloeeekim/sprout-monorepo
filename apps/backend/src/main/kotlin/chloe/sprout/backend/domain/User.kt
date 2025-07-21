@@ -1,10 +1,12 @@
 package chloe.sprout.backend.domain
 
+import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import java.util.UUID
 
@@ -19,4 +21,7 @@ class User(
 
     @Column(nullable = false, length = 50)
     val name: String
-) : AbstractPersistableEntity()
+) : AbstractPersistableEntity() {
+    @OneToMany(mappedBy = "user", cascade = [(CascadeType.ALL)])
+    var notes: MutableList<Note> = mutableListOf()
+}

@@ -52,7 +52,7 @@ class NoteController(
 
     @DeleteMapping("/{id}")
     fun deleteNote(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<Void> {
-        val response = noteService.deleteNote(user.getUserId(), id)
+        noteService.deleteNote(user.getUserId(), id)
         return ResponseEntity.noContent().build()
     }
 }

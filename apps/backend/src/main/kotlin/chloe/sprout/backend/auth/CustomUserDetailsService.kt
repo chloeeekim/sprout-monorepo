@@ -1,5 +1,6 @@
 package chloe.sprout.backend.auth
 
+import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.UserRepository
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
@@ -14,8 +15,8 @@ class CustomUserDetailsService(
 
     override fun loadUserByUsername(email: String): UserDetails {
         val user = userRepository.findByEmail(email)
-            ?: throw UsernameNotFoundException("User not found with email: " + email)
+            ?: throw UserNotFoundException()
 
-        return User(user.email, user.password, emptyList())
+        return CustomUserDetails(user)
     }
 }

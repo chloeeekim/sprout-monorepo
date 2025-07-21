@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@theme {
+    --color-sprout-background: #F8F5F2;
+    --color-sprout-text: #333333;
+    --color-sprout-accent: #5A8B72;
+    --color-sprout-accent-dark: #4a725e;
+}

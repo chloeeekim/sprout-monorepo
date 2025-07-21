@@ -1,19 +1,15 @@
 package chloe.sprout.backend.domain
 
 import jakarta.annotation.PostConstruct
-import jakarta.persistence.Column
-import jakarta.persistence.EntityListeners
-import jakarta.persistence.Id
-import jakarta.persistence.MappedSuperclass
-import jakarta.persistence.PostLoad
+import jakarta.persistence.*
 import org.hibernate.proxy.HibernateProxy
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
-import java.util.Objects
-import java.util.UUID
+import java.util.*
+import kotlin.jvm.Transient
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener::class)

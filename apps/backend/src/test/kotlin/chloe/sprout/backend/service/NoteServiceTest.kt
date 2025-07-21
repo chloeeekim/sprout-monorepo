@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.data.repository.findByIdOrNull
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @ExtendWith(MockKExtension::class)
 class NoteServiceTest {

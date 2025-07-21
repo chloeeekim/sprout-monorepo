@@ -1,12 +1,7 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Note
-import chloe.sprout.backend.dto.NoteCreateRequest
-import chloe.sprout.backend.dto.NoteCreateResponse
-import chloe.sprout.backend.dto.NoteDetailResponse
-import chloe.sprout.backend.dto.NoteListResponse
-import chloe.sprout.backend.dto.NoteUpdateRequest
-import chloe.sprout.backend.dto.NoteUpdateResponse
+import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
@@ -16,7 +11,7 @@ import chloe.sprout.backend.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.UUID
+import java.util.*
 
 @Service
 class NoteService(

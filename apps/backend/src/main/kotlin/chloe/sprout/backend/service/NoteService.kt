@@ -1,0 +1,108 @@
+package chloe.sprout.backend.service
+
+import chloe.sprout.backend.domain.Note
+import chloe.sprout.backend.dto.NoteCreateRequest
+import chloe.sprout.backend.dto.NoteCreateResponse
+import chloe.sprout.backend.dto.NoteDetailResponse
+import chloe.sprout.backend.dto.NoteListResponse
+import chloe.sprout.backend.dto.NoteUpdateRequest
+import chloe.sprout.backend.dto.NoteUpdateResponse
+import chloe.sprout.backend.exception.note.NoteNotFoundException
+import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
+import chloe.sprout.backend.exception.note.NoteTitleRequiredException
+import chloe.sprout.backend.exception.user.UserNotFoundException
+import chloe.sprout.backend.repository.NoteRepository
+import chloe.sprout.backend.repository.UserRepository
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
+
+@Service
+class NoteService(
+    private val noteRepository: NoteRepository,
+    private val userRepository: UserRepository
+) {
+    @Transactional
+    fun createNote(userId: UUID, request: NoteCreateRequest): NoteCreateResponse {
+        // User 확인
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw UserNotFoundException()
+
+        // title blank 여부 확인
+        if (request.title.isBlank()) {
+            throw NoteTitleRequiredException()
+        }
+
+        // Note entity 생성
+        val note = Note(
+            title = request.title,
+            content = request.content,
+            owner = user
+        )
+
+        // DB 저장
+        val save = noteRepository.save(note)
+
+        // response DTO로 변환 후 반환
+        return NoteCreateResponse.from(save)
+    }
+
+    @Transactional(readOnly = true)
+    fun getNoteById(noteId: UUID, userId: UUID): NoteDetailResponse {
+        // Note 확인
+        val note = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // response DTO로 변환 후 반환
+        return NoteDetailResponse.from(note)
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllNotesByUserId(userId: UUID): List<NoteListResponse> {
+        // Note 목록을 response DTO로 변환 후 응답
+        return noteRepository.findAllByUserId(userId).map { NoteListResponse.from(it) }
+    }
+
+    @Transactional
+    fun updateNote(userId: UUID, noteId: UUID, request: NoteUpdateRequest): NoteUpdateResponse {
+        // Note 확인
+        val note = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // note 내용 업데이트
+        val save = note.run {
+            title = request.title
+            content = request.content
+            noteRepository.save(this)
+        }
+
+        // response DTO로 변환 후 반환
+        return NoteUpdateResponse.from(note)
+    }
+
+    @Transactional
+    fun deleteNote(userId: UUID, noteId: UUID) {
+        // Note 확인
+        val note = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // Note 삭제
+        noteRepository.delete(note)
+    }
+}

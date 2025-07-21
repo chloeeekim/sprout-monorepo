@@ -12,7 +12,7 @@
   "dependencies": {
     "@sprout/shared-types": "*",
     "@tailwindcss/vite": "^4.1.11",
-    "axios": "^1.7.2",
+    "axios": "^1.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.7.0",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@types/axios": "^0.14.4",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@types/react-router-dom": "^5.3.3",

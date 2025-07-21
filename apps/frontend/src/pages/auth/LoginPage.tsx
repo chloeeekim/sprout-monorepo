@@ -2,16 +2,41 @@ import React, { useState } from "react";
 import AuthLayout from "./AuthLayout";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Login attempt: ', { email, password });
-        // TODO implement actual login logic
+        setError(null);
+
+        try {
+            const response = await axios.post(
+                'http://localhost:8080/api/users/login', {
+                    email: email,
+                    password: password,
+                }
+            );
+
+            // 로그인 성공 시
+            console.log('Login Successful: ', response.data);
+            alert("로그인 성공");
+            navigate('/');
+        } catch (err) {
+            // 로그인 실패 시
+            console.error('Login failed: ', err);
+
+            if (axios.isAxiosError(err) && err.response) {
+                setError(err.response.data.message || '로그인에 실패했습니다.');
+            } else {
+                setError('네트워크 오류 또는 알 수 없는 오류가 발생했습니다.');
+            }
+        }
     };
 
     return (
@@ -35,6 +60,8 @@ const LoginPage: React.FC = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
+                {/* 에러 메시지 표시 */}
+                {error && <p className="text-red-500 text-sm mb-4">{error}</p> }
                 <Button type="submit" className="w-full mt-4">
                     로그인
                 </Button>

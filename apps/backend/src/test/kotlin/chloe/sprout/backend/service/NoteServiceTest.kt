@@ -50,11 +50,13 @@ class NoteServiceTest {
             name = "name",
             password = "password"
         )
+        TestUtils.setSuperClassPrivateField(testUser, "id", UUID.fromString("99999999-9999-9999-9999-999999999999"))
         testNote = Note(
             title = "Test note",
             content = "This is a test note content.",
             owner = testUser
         )
+        TestUtils.setSuperClassPrivateField(testNote, "id", UUID.fromString("99999999-9999-9999-9999-999999999999"))
         TestUtils.setSuperClassPrivateField(testNote, "createdAt", LocalDateTime.now())
         TestUtils.setSuperClassPrivateField(testNote, "updatedAt", LocalDateTime.now())
     }

@@ -81,7 +81,11 @@ class UserServiceTest {
 
         verify(exactly = 1) { userRepository.findByEmail(request.email) }
         verify(exactly = 1) { passwordEncoder.encode(request.password) }
-        verify(exactly = 1) { userRepository.save(user) }
+        verify(exactly = 1) { userRepository.save(withArg {
+            assertThat(it.email).isEqualTo(user.email)
+            assertThat(it.password).isEqualTo(user.password)
+            assertThat(it.name).isEqualTo(user.name)
+        }) }
     }
 
     @Test

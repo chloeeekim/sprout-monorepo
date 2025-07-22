@@ -11,6 +11,7 @@ import chloe.sprout.backend.exception.user.InvalidPasswordException
 import chloe.sprout.backend.exception.user.UserAlreadyExistsException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.UserRepository
+import chloe.sprout.backend.util.TestUtils
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
@@ -21,6 +22,7 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -46,13 +48,25 @@ class UserServiceTest {
     @InjectMockKs
     private lateinit var userService: UserService
 
+    private lateinit var testUser: User
+
+    @BeforeEach
+    fun setUp() {
+        testUser = User(
+            email = "test@test.com",
+            name = "name",
+            password = "password"
+        )
+        TestUtils.setSuperClassPrivateField(testUser, "id", UUID.fromString("999999999999-9999-9999-999999999999"))
+    }
+
     @Test
     @DisplayName("회원가입 - 성공")
     fun signup_success() {
         // given
-        val request = UserSignupRequest("test@test.com", "password", "name")
+        val request = UserSignupRequest(testUser.email, testUser.password, testUser.name)
         val encodedPassword = "encodedPassword"
-        val user = User(request.email, encodedPassword, request.name)
+        val user = User(testUser.email, encodedPassword, testUser.name)
 
         every { userRepository.findByEmail(request.email) } returns null
         every { passwordEncoder.encode(request.password) } returns encodedPassword
@@ -62,22 +76,21 @@ class UserServiceTest {
         val response = userService.signup(request)
 
         // then
-        assertThat(response.email).isEqualTo(request.email)
-        assertThat(response.name).isEqualTo(request.name)
+        assertThat(response.email).isEqualTo(testUser.email)
+        assertThat(response.name).isEqualTo(testUser.name)
 
         verify(exactly = 1) { userRepository.findByEmail(request.email) }
         verify(exactly = 1) { passwordEncoder.encode(request.password) }
-        verify(exactly = 1) { userRepository.save(any()) }
+        verify(exactly = 1) { userRepository.save(user) }
     }
 
     @Test
     @DisplayName("회원가입 - 실패 (이메일 중복)")
     fun signup_fail_emailAlreadyExists() {
         // given
-        val request = UserSignupRequest("test@test.com", "password", "name")
-        val existingUser = User(request.email, "password", "name")
+        val request = UserSignupRequest(testUser.email, testUser.password, testUser.name)
 
-        every { userRepository.findByEmail(request.email) } returns existingUser
+        every { userRepository.findByEmail(request.email) } returns testUser
 
         // when & then
         assertThrows(UserAlreadyExistsException::class.java) {
@@ -93,8 +106,8 @@ class UserServiceTest {
     @DisplayName("로그인 - 성공")
     fun login_success() {
         // given
-        val request = UserLoginRequest("test@test.com", "password")
-        val user = User(request.email, "encodedPassword", "name")
+        val request = UserLoginRequest(testUser.email, testUser.password)
+        val user = User(testUser.email, "encodedPassword", testUser.name)
         val accessToken = "accessToken"
         val refreshToken = "refreshToken"
         val httpServletResponse = MockHttpServletResponse()
@@ -133,7 +146,7 @@ class UserServiceTest {
     @DisplayName("로그인 - 실패 (사용자 없음)")
     fun login_fail_userNotFound() {
         // given
-        val request = UserLoginRequest("test@test.com", "password")
+        val request = UserLoginRequest(testUser.email, testUser.password)
 
         every { userRepository.findByEmail(request.email) } returns null
 
@@ -149,8 +162,8 @@ class UserServiceTest {
     @DisplayName("로그인 - 실패 (비밀번호 불일치)")
     fun login_fail_invalidPassword() {
         // given
-        val request = UserLoginRequest("test@test.com", "password")
-        val user = User(request.email, "encodedPassword", "name")
+        val request = UserLoginRequest(testUser.email, testUser.password)
+        val user = User(testUser.email, "encodedPassword", testUser.name)
 
         every { userRepository.findByEmail(request.email) } returns user
         every { passwordEncoder.matches(request.password, user.password) } returns false
@@ -171,7 +184,7 @@ class UserServiceTest {
         val refreshToken = "validRefreshToken"
         val newAccessToken = "newAccessToken"
         val newRefreshToken = "newRefreshToken"
-        val email = "test@test.com"
+        val email = testUser.email
 
         val request = mockk<HttpServletRequest>()
         val response = MockHttpServletResponse()
@@ -223,7 +236,7 @@ class UserServiceTest {
     fun refresh_fail_invalidRefreshToken() {
         // given
         val refreshToken = "invalidRefreshToken"
-        val email = "test@test.com"
+        val email = testUser.email
         val request = mockk<HttpServletRequest>()
         val cookie = Cookie("refreshToken", refreshToken)
 
@@ -247,7 +260,7 @@ class UserServiceTest {
     fun logout_success() {
         // given
         val accessToken = "validAccessToken"
-        val email = "test@test.com"
+        val email = testUser.email
         val expiration = Date(System.currentTimeMillis() + 1000 * 60 * 60) // 1 hour
         val request = mockk<HttpServletRequest>()
 

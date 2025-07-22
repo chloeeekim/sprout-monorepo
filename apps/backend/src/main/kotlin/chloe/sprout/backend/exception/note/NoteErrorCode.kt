@@ -10,7 +10,7 @@ enum class NoteErrorCode(
     val message: String
 ) : BaseErrorCode {
     NOTE_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "NOTE_001", "노트를 찾을 수 없습니다."),
-    TITLE_TITLE_REQUIRED(HttpStatus.BAD_REQUEST.value(), "NOTE_002", "노트 제목은 필수입니다."),
+    NOTE_TITLE_REQUIRED(HttpStatus.BAD_REQUEST.value(), "NOTE_002", "노트 제목은 필수입니다."),
     NOTE_OWNER_MISMATCH(HttpStatus.FORBIDDEN.value(), "NOTE_003", "해당 노트에 접근할 권한이 없습니다.");
 
     override fun getErrorDetail(): ErrorDetail {

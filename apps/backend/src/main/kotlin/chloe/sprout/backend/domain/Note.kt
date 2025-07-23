@@ -14,4 +14,8 @@ class Note(
     @JoinColumn(name = "owner_id")
     @ManyToOne(fetch = FetchType.LAZY)
     var owner: User
+    var owner: User,
+
+    @Column(nullable = false)
+    var isFavorite: Boolean = false,
 ) : AbstractPersistableEntity()

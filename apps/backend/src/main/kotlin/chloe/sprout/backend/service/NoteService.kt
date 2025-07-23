@@ -33,6 +33,7 @@ class NoteService(
         val note = Note(
             title = request.title,
             content = request.content,
+            isFavorite = false, // false로 초기화
             owner = user
         )
 
@@ -89,6 +90,24 @@ class NoteService(
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(note)
+    }
+
+    @Transactional
+    fun toggleIsFavorite(userId: UUID, noteId: UUID): NoteUpdateResponse {
+        // Note 확인
+        val note = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // isFavorite toggle
+        note.isFavorite = !note.isFavorite
+
+        val save = noteRepository.save(note)
+        return NoteUpdateResponse.from(save)
     }
 
     @Transactional

@@ -16,6 +16,7 @@ data class NoteCreateResponse(
     val id: UUID,
     val title: String,
     val content: String?,
+    val isFavorite: Boolean,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -24,6 +25,7 @@ data class NoteCreateResponse(
                 id = note.id,
                 title = note.title,
                 content = note.content,
+                isFavorite = note.isFavorite,
                 createdAt = requireNotNull(note.createdAt)
             )
         }
@@ -41,6 +43,7 @@ data class NoteUpdateResponse(
     val id: UUID,
     val title: String,
     val content: String?,
+    val isFavorite: Boolean,
     val updatedAt: LocalDateTime
 ) {
     companion object {
@@ -49,6 +52,7 @@ data class NoteUpdateResponse(
                 id = note.id,
                 title = note.title,
                 content = note.content,
+                isFavorite = note.isFavorite,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -59,6 +63,7 @@ data class NoteDetailResponse(
     val id: UUID,
     val title: String,
     val content: String?,
+    val isFavorite: Boolean,
     val updatedAt: LocalDateTime
 ) {
     companion object {
@@ -67,6 +72,7 @@ data class NoteDetailResponse(
                 id = note.id,
                 title = note.title,
                 content = note.content,
+                isFavorite = note.isFavorite,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -77,6 +83,7 @@ data class NoteListResponse(
     val id: UUID,
     val title: String,
     val content: String?,
+    val isFavorite: Boolean,
     val updatedAt: LocalDateTime
 ) {
     companion object {
@@ -85,6 +92,7 @@ data class NoteListResponse(
                 id = note.id,
                 title = note.title,
                 content = note.content,
+                isFavorite = note.isFavorite,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }

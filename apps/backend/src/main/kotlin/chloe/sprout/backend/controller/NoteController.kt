@@ -39,6 +39,12 @@ class NoteController(
         return ResponseEntity.ok(response)
     }
 
+    @PostMapping("/{id}/favorite")
+    fun toggleIsFavorite(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<NoteUpdateResponse> {
+        val response = noteService.toggleIsFavorite(user.getUserId(), id)
+        return ResponseEntity.ok(response)
+    }
+
     @DeleteMapping("/{id}")
     fun deleteNote(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<Void> {
         noteService.deleteNote(user.getUserId(), id)

@@ -5,8 +5,8 @@ import jakarta.servlet.Filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -16,7 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.filter.OncePerRequestFilter
 
 @Profile("test-unit")
-@Configuration
+@TestConfiguration
 @EnableWebSecurity
 class SecurityTestConfig {
     @Bean

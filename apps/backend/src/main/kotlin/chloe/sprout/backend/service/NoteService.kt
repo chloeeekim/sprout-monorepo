@@ -61,7 +61,7 @@ class NoteService(
     @Transactional(readOnly = true)
     fun getAllNotesByUserId(userId: UUID): List<NoteListResponse> {
         // Note 목록을 response DTO로 변환 후 응답
-        return noteRepository.findAllByUserId(userId).map { NoteListResponse.from(it) }
+        return noteRepository.findAllByOwnerId(userId).map { NoteListResponse.from(it) }
     }
 
     @Transactional

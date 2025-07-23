@@ -168,7 +168,7 @@ class NoteServiceTest {
     @DisplayName("사용자 ID로 모든 노트 조회 - 성공")
     fun getAllNotesByUserId_success() {
         // given
-        every { noteRepository.findAllByUserId(testUser.id) } returns listOf(testNote)
+        every { noteRepository.findAllByOwnerId(testUser.id) } returns listOf(testNote)
 
         // when
         val response = noteService.getAllNotesByUserId(testUser.id)
@@ -180,7 +180,7 @@ class NoteServiceTest {
         assertThat(response.first().title).isEqualTo(testNote.title)
         assertThat(response.first().content).isEqualTo(testNote.content)
 
-        verify(exactly = 1) { noteRepository.findAllByUserId(testUser.id) }
+        verify(exactly = 1) { noteRepository.findAllByOwnerId(testUser.id) }
     }
 
     @Test

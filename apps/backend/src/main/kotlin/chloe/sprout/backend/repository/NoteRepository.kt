@@ -7,5 +7,5 @@ import java.util.*
 
 @Repository
 interface NoteRepository : JpaRepository<Note, UUID> {
-    fun findAllByUserId(userId: UUID): List<Note>
+    fun findAllByOwnerId(userId: UUID): List<Note>
 }

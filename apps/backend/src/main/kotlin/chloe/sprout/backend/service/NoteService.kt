@@ -98,7 +98,7 @@ class NoteService(
         updateTags(note, request.tags, note.owner)
 
         // response DTO로 변환 후 반환
-        return NoteUpdateResponse.from(note)
+        return NoteUpdateResponse.from(save)
     }
 
     @Transactional
@@ -136,8 +136,8 @@ class NoteService(
 
     private fun updateTags(note: Note, tagName: List<String>, owner: User) {
         note.noteTags.clear()
-        tagName.forEach { tagName ->
-            val tag = tagRepository.findByNameAndOwner(tagName, owner) ?: Tag(name = tagName, owner = owner)
+        tagName.forEach { t ->
+            val tag = tagRepository.findByNameAndOwner(t, owner) ?: Tag(name = t, owner = owner)
             note.noteTags.add(NoteTag(note, tag))
         }
     }

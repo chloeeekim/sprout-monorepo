@@ -40,7 +40,7 @@ data class NoteUpdateRequest(
     val title: String,
 
     val content: String?,
-    val tags: List<String>
+    val tags: List<String> = emptyList()
 )
 
 data class NoteUpdateResponse(

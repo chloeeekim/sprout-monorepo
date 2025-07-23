@@ -14,6 +14,6 @@ class User(
     @Column(nullable = false, length = 50)
     val name: String
 ) : AbstractPersistableEntity() {
-    @OneToMany(mappedBy = "user", cascade = [(CascadeType.ALL)])
+    @OneToMany(mappedBy = "owner", cascade = [(CascadeType.ALL)])
     var notes: MutableList<Note> = mutableListOf()
 }

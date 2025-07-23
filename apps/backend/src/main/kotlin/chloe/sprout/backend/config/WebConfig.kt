@@ -14,5 +14,6 @@ class WebConfig : WebMvcConfigurer {
             .allowedHeaders("*") // 모든 헤더 허용
             .allowCredentials(true) // 자격 증명 허용
             .maxAge(3600) // pre-flight 요청 캐싱 시간 (초)
+            .exposedHeaders("Authorization") // Authorization Header를 클라이언트에서 읽을 수 있도록 허용
     }
 }

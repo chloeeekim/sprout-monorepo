@@ -75,6 +75,11 @@ class NoteService(
             throw NoteOwnerMismatchException()
         }
 
+        // title blank 여부 확인
+        if (request.title.isBlank()) {
+            throw NoteTitleRequiredException()
+        }
+
         // note 내용 업데이트
         val save = note.run {
             title = request.title

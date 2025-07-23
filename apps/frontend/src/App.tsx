@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
+import NoteListPage from "./pages/note/NoteListPage";
 
 // TODO 메인 페이지
 const HomePage: React.FC = () => {
@@ -29,6 +30,9 @@ function App() {
 
                 {/* 회원가입 페이지 */}
                 <Route path="/signup" element={<SignupPage />} />
+
+                {/* 노트 리스트 페이지 */}
+                <Route path="/notes" element={<NoteListPage />} />
             </Routes>
         </Router>
     );

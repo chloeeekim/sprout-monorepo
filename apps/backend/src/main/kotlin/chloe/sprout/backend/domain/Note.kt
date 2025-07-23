@@ -13,9 +13,11 @@ class Note(
 
     @JoinColumn(name = "owner_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    var owner: User
     var owner: User,
 
     @Column(nullable = false)
     var isFavorite: Boolean = false,
+
+    @OneToMany(mappedBy = "note_id", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var noteTags: MutableSet<NoteTag> = mutableSetOf()
 ) : AbstractPersistableEntity()

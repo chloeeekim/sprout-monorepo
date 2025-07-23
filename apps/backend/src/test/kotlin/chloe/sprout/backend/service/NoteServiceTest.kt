@@ -85,7 +85,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 생성 - 실패 (사용자 없음)")
-    fun createNote_failure_userNotFound() {
+    fun createNote_fail_userNotFound() {
         // given
         val request = NoteCreateRequest(testNote.title, testNote.content)
 
@@ -102,7 +102,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 생성 - 실패 (빈 타이틀)")
-    fun createNote_failure_noteTitleRequired() {
+    fun createNote_fail_noteTitleRequired() {
         // given
         val request = NoteCreateRequest("", testNote.content)
 
@@ -137,7 +137,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 ID로 조회 - 실패 (노트 없음)")
-    fun getNoteById_failure_noteNotFound() {
+    fun getNoteById_fail_noteNotFound() {
         // given
         every { noteRepository.findByIdOrNull(testNote.id) } returns null
 
@@ -151,7 +151,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 ID로 조회 - 실패 (소유자 불일치)")
-    fun getNoteById_failure_noteOwnerMismatch() {
+    fun getNoteById_fail_noteOwnerMismatch() {
         // given
         val invalidUserId = UUID.fromString("11111111-1111-1111-1111-111111111111")
         every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
@@ -217,7 +217,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 업데이트 - 실패 (노트 없음)")
-    fun updateNote_failure_noteNotFound() {
+    fun updateNote_fail_noteNotFound() {
         // given
         val invalidNoteId = UUID.fromString("11111111-1111-1111-1111-111111111111")
         val updatedTitle = "Updated note"
@@ -237,7 +237,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 업데이트 - 실패 (소유자 불일치)")
-    fun updateNote_failure_noteOwnerMismatch() {
+    fun updateNote_fail_noteOwnerMismatch() {
         // given
         val invalidUserId = UUID.fromString("11111111-1111-1111-1111-111111111111")
         val updatedTitle = "Updated note"
@@ -249,6 +249,24 @@ class NoteServiceTest {
         // when & then
         assertThrows(NoteOwnerMismatchException::class.java) {
             noteService.updateNote(invalidUserId, testNote.id, request)
+        }
+
+        verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
+        verify(exactly = 0) { noteRepository.save(any()) }
+    }
+
+    @Test
+    @DisplayName("노트 업데이트 - 실패 (빈 타이틀)")
+    fun updateNote_fail_noteTitleRequired() {
+        // given
+        val updatedContent = "This is a updated note content."
+        val request = NoteUpdateRequest("", updatedContent)
+
+        every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
+
+        // when & then
+        assertThrows(NoteTitleRequiredException::class.java) {
+            noteService.updateNote(testUser.id, testNote.id, request)
         }
 
         verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
@@ -272,7 +290,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 삭제 - 실패 (노트 없음)")
-    fun deleteNote_failure_noteNotFound() {
+    fun deleteNote_fail_noteNotFound() {
         // given
         val invalidNoteId = UUID.fromString("11111111-1111-1111-1111-111111111111")
         every { noteRepository.findByIdOrNull(invalidNoteId) } returns null
@@ -288,7 +306,7 @@ class NoteServiceTest {
 
     @Test
     @DisplayName("노트 삭제 - 실패 (소유자 불일치)")
-    fun deleteNote_failure_noteOwnerMismatch() {
+    fun deleteNote_fail_noteOwnerMismatch() {
         // given
         val invalidUserId = UUID.fromString("11111111-1111-1111-1111-111111111111")
         every { noteRepository.findByIdOrNull(testNote.id) } returns testNote

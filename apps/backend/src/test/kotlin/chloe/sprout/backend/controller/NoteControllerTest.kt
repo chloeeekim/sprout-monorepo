@@ -7,6 +7,7 @@ import chloe.sprout.backend.domain.Note
 import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.global.GlobalErrorCode
+import chloe.sprout.backend.exception.global.InvalidFieldValueException
 import chloe.sprout.backend.exception.note.NoteErrorCode
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
@@ -334,6 +335,31 @@ class NoteControllerTest {
         }
 
         verify(exactly = 1) { noteService.updateNote(invalidTestUser.id, testNote.id, request) }
+    }
+
+    @Test
+    @DisplayName("POST /api/notes/{id} (노트 업데이트) - 실패 (빈 타이틀)")
+    @WithMockUser
+    fun updateNoteApi_fail_noteTitleRequired() {
+        // given
+        val updatedContent = "This is a updated note content."
+        val request = NoteUpdateRequest("", updatedContent)
+        val errorDetail = GlobalErrorCode.INVALID_FIELD_VALUE.getErrorDetail()
+
+        every { noteService.updateNote(any(), any(), any()) } throws InvalidFieldValueException()
+
+        // when & then
+        mockMvc.post("/api/notes/{id}", testNote.id) {
+            with(user(CustomUserDetails(testUser)))
+            contentType = MediaType.APPLICATION_JSON
+            content = objectMapper.writeValueAsString(request)
+        }.andExpect {
+            status { isEqualTo(errorDetail.status) }
+            jsonPath("$.code") { value(errorDetail.code) }
+            jsonPath("$.message") { value(errorDetail.message) }
+        }
+
+        verify(exactly = 0) { noteService.updateNote(testUser.id, testNote.id, request) }
     }
 
     @Test

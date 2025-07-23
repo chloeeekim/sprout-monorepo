@@ -24,9 +24,18 @@ const LoginPage: React.FC = () => {
             );
 
             // 로그인 성공 시
-            console.log('Login Successful: ', response.data);
-            alert("로그인 성공");
-            navigate('/');
+            console.log(response.headers)
+            const authHeader = response.headers['authorization'];
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.substring(7);
+                localStorage.setItem('accessToken', token);
+
+                console.log('Login Successful: ', response.data);
+                alert("로그인 성공");
+                navigate('/');
+            } else {
+                setError("로그인에 성공했지만 인증 토큰을 받지 못했습니다.");
+            }
         } catch (err) {
             // 로그인 실패 시
             console.error('Login failed: ', err);

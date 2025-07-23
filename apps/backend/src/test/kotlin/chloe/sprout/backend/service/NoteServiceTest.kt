@@ -1,6 +1,8 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Note
+import chloe.sprout.backend.domain.NoteTag
+import chloe.sprout.backend.domain.Tag
 import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.NoteCreateRequest
 import chloe.sprout.backend.dto.NoteUpdateRequest
@@ -9,6 +11,7 @@ import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.NoteRepository
+import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
 import chloe.sprout.backend.util.TestUtils
 import io.mockk.Runs
@@ -37,6 +40,9 @@ class NoteServiceTest {
     @MockK
     private lateinit var userRepository: UserRepository
 
+    @MockK
+    private lateinit var tagRepository: TagRepository
+
     @InjectMockKs
     private lateinit var noteService: NoteService
 
@@ -51,10 +57,13 @@ class NoteServiceTest {
             password = "password"
         )
         TestUtils.setSuperClassPrivateField(testUser, "id", UUID.fromString("99999999-9999-9999-9999-999999999999"))
+
         testNote = Note(
             title = "Test note",
             content = "This is a test note content.",
-            owner = testUser
+            owner = testUser,
+            isFavorite = false,
+            noteTags = mutableSetOf()
         )
         TestUtils.setSuperClassPrivateField(testNote, "id", UUID.fromString("99999999-9999-9999-9999-999999999999"))
         TestUtils.setSuperClassPrivateField(testNote, "createdAt", LocalDateTime.now())
@@ -65,9 +74,15 @@ class NoteServiceTest {
     @DisplayName("노트 생성 - 성공")
     fun createNote_success() {
         // given
-        val request = NoteCreateRequest(testNote.title, testNote.content)
+        val tagNames = listOf("tag1", "tag2")
+        val request = NoteCreateRequest(testNote.title, testNote.content, tags = tagNames)
+        val tag1 = Tag(tagNames[0], testUser)
+        val tag2 = Tag(tagNames[1], testUser)
+        testNote.noteTags.add(NoteTag(testNote, tag1))
+        testNote.noteTags.add(NoteTag(testNote, tag2))
 
         every { userRepository.findByIdOrNull(testUser.id) } returns testUser
+        every { tagRepository.findByNameAndOwner(any(), testUser) } returns null
         every { noteRepository.save(any()) } returns testNote
 
         // when
@@ -78,8 +93,11 @@ class NoteServiceTest {
         assertThat(response.id).isEqualTo(testNote.id)
         assertThat(response.title).isEqualTo(request.title)
         assertThat(response.content).isEqualTo(request.content)
+        assertThat(response.isFavorite).isFalse
+        assertThat(response.tags).containsExactlyInAnyOrderElementsOf(tagNames)
 
         verify(exactly = 1) { userRepository.findByIdOrNull(testUser.id) }
+        verify(exactly = tagNames.size) { tagRepository.findByNameAndOwner(any(), any()) }
         verify(exactly = 1) { noteRepository.save(any()) }
     }
 
@@ -131,6 +149,8 @@ class NoteServiceTest {
         assertThat(response.id).isEqualTo(testNote.id)
         assertThat(response.title).isEqualTo(testNote.title)
         assertThat(response.content).isEqualTo(testNote.content)
+        assertThat(response.isFavorite).isFalse
+        assertThat(response.tags).isEmpty()
 
         verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
     }
@@ -179,6 +199,8 @@ class NoteServiceTest {
         assertThat(response.first().id).isEqualTo(testNote.id)
         assertThat(response.first().title).isEqualTo(testNote.title)
         assertThat(response.first().content).isEqualTo(testNote.content)
+        assertThat(response.first().isFavorite).isFalse
+        assertThat(response.first().tags).isEmpty()
 
         verify(exactly = 1) { noteRepository.findAllByOwnerId(testUser.id) }
     }
@@ -189,7 +211,8 @@ class NoteServiceTest {
         // given
         val updatedTitle = "Updated note"
         val updatedContent = "This is a updated note content."
-        val request = NoteUpdateRequest(updatedTitle, updatedContent)
+        val tagNames = listOf("tag1", "tag2")
+        val request = NoteUpdateRequest(updatedTitle, updatedContent, tags = tagNames)
         val updatedNote = Note(
             title = updatedTitle,
             content = updatedContent,
@@ -200,7 +223,8 @@ class NoteServiceTest {
         TestUtils.setSuperClassPrivateField(updatedNote, "updatedAt", LocalDateTime.now())
 
         every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
-        every { noteRepository.save(any()) } returns updatedNote
+        every { tagRepository.findByNameAndOwner(any(), testUser) } returns null
+        every { noteRepository.save(any()) } answers { firstArg() }
 
         // when
         val response = noteService.updateNote(testUser.id, testNote.id, request)
@@ -210,8 +234,11 @@ class NoteServiceTest {
         assertThat(response.id).isEqualTo(testNote.id)
         assertThat(response.title).isEqualTo(updatedTitle)
         assertThat(response.content).isEqualTo(updatedContent)
+        assertThat(response.isFavorite).isFalse
+        assertThat(response.tags).containsExactlyInAnyOrderElementsOf(tagNames)
 
         verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
+        verify(exactly = tagNames.size) { tagRepository.findByNameAndOwner(any(), testUser) }
         verify(exactly = 1) { noteRepository.save(any()) }
     }
 
@@ -267,6 +294,78 @@ class NoteServiceTest {
         // when & then
         assertThrows(NoteTitleRequiredException::class.java) {
             noteService.updateNote(testUser.id, testNote.id, request)
+        }
+
+        verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
+        verify(exactly = 0) { noteRepository.save(any()) }
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 상태 토글 - 성공 (false -> true)")
+    fun toggleIsFavorite_success_toTrue() {
+        // given
+        testNote.isFavorite = false
+        every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
+        every { noteRepository.save(any()) } answers { firstArg() }
+
+        // when
+        val response = noteService.toggleIsFavorite(testUser.id, testNote.id)
+
+        // then
+        assertThat(response.id).isEqualTo(testNote.id)
+        assertThat(response.isFavorite).isTrue
+
+        verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
+        verify(exactly = 1) { noteRepository.save(any()) }
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 상태 토글 - 성공 (true -> false)")
+    fun toggleIsFavorite_success_toFalse() {
+        // given
+        testNote.isFavorite = true
+        every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
+        every { noteRepository.save(any()) } answers { firstArg() }
+
+        // when
+        val response = noteService.toggleIsFavorite(testUser.id, testNote.id)
+
+        // then
+        assertThat(response.id).isEqualTo(testNote.id)
+        assertThat(response.isFavorite).isFalse
+
+        verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }
+        verify(exactly = 1) { noteRepository.save(any()) }
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 상태 토글 - 실패 (노트 없음)")
+    fun toggleIsFavorite_fail_noteNotFound() {
+        // given
+        val invalidNoteId = UUID.fromString("11111111-1111-1111-1111-111111111111")
+
+        every { noteRepository.findByIdOrNull(invalidNoteId) } returns null
+
+        // when & then
+        assertThrows(NoteNotFoundException::class.java) {
+            noteService.toggleIsFavorite(testNote.id, invalidNoteId)
+        }
+
+        verify(exactly = 1) { noteRepository.findByIdOrNull(invalidNoteId) }
+        verify(exactly = 0) { noteRepository.save(any()) }
+    }
+
+    @Test
+    @DisplayName("즐겨찾기 상태 토글 - 실패 (소유자 불일치)")
+    fun toggleIsFavorite_fail_noteOwnerMismatch() {
+        // given
+        val invalidUserId = UUID.fromString("11111111-1111-1111-1111-111111111111")
+
+        every { noteRepository.findByIdOrNull(testNote.id) } returns testNote
+
+        // when & then
+        assertThrows(NoteOwnerMismatchException::class.java) {
+            noteService.toggleIsFavorite(invalidUserId, testNote.id)
         }
 
         verify(exactly = 1) { noteRepository.findByIdOrNull(testNote.id) }

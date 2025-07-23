@@ -37,6 +37,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import java.time.LocalDateTime
 import java.util.*
+import org.hamcrest.Matchers.hasSize
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -60,6 +61,7 @@ class NoteControllerTest {
     @BeforeEach
     fun setUp() {
         clearAllMocks()
+
         testUser = User(
             email = "test@test.com",
             name = "name",
@@ -68,18 +70,16 @@ class NoteControllerTest {
         TestUtils.setSuperClassPrivateField(testUser, "id", UUID.fromString("99999999-9999-9999-9999-999999999999"))
         TestUtils.setSuperClassPrivateField(testUser, "createdAt", LocalDateTime.now())
         TestUtils.setSuperClassPrivateField(testUser, "updatedAt", LocalDateTime.now())
+
         invalidTestUser = User(
             email = "invalid@test.com",
             name = "name",
             password = "password"
         )
-        TestUtils.setSuperClassPrivateField(
-            invalidTestUser,
-            "id",
-            UUID.fromString("00000000-0000-0000-0000-000000000000")
-        )
+        TestUtils.setSuperClassPrivateField(invalidTestUser, "id", UUID.fromString("00000000-0000-0000-0000-000000000000"))
         TestUtils.setSuperClassPrivateField(invalidTestUser, "createdAt", LocalDateTime.now())
         TestUtils.setSuperClassPrivateField(invalidTestUser, "updatedAt", LocalDateTime.now())
+
         testNote = Note(
             title = "Test note",
             content = "This is a test note content.",
@@ -94,9 +94,16 @@ class NoteControllerTest {
     @DisplayName("POST /api/notes (노트 생성) - 성공")
     fun createNoteApi_success() {
         // given
-        val request = NoteCreateRequest(testNote.title, testNote.content)
-        val response =
-            NoteCreateResponse(testNote.id, testNote.title, testNote.content, requireNotNull(testNote.createdAt))
+        val tagNames = listOf("tag1", "tag2")
+        val request = NoteCreateRequest(testNote.title, testNote.content, tags = tagNames)
+        val response =NoteCreateResponse(
+            id = testNote.id,
+            title = testNote.title,
+            content = testNote.content,
+            isFavorite = false,
+            tags = tagNames,
+            createdAt = requireNotNull(testNote.createdAt)
+        )
 
         every { noteService.createNote(any(), any()) } returns response
 
@@ -110,6 +117,8 @@ class NoteControllerTest {
             jsonPath("$.data.id") { value(testNote.id.toString()) }
             jsonPath("$.data.title") { value(testNote.title) }
             jsonPath("$.data.content") { value(testNote.content) }
+            jsonPath("$.data.isFavorite") { value(false) }
+            jsonPath("$.data.tags", hasSize<Any>(tagNames.size))
         }
 
         verify(exactly = 1) { noteService.createNote(testUser.id, request) }
@@ -117,7 +126,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes (노트 생성) - 실패 (사용자 없음)")
-    @WithMockUser
     fun createNoteApi_fail_userNotFound() {
         // given
         val request = NoteCreateRequest(testNote.title, testNote.content)
@@ -141,7 +149,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes (노트 생성) - 실패 (빈 타이틀)")
-    @WithMockUser
     fun createNoteApi_fail_noteTitleRequired() {
         // given
         val request = NoteCreateRequest("", testNote.content)
@@ -165,12 +172,17 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("GET /api/notes/{id} (노트 ID로 조회) - 성공")
-    @WithMockUser
     fun getNoteByIdApi_success() {
         // given
         val noteId = testNote.id
-        val response =
-            NoteDetailResponse(testNote.id, testNote.title, testNote.content, requireNotNull(testNote.updatedAt))
+        val response = NoteDetailResponse(
+            id = testNote.id,
+            title = testNote.title,
+            content = testNote.content,
+            isFavorite = false,
+            tags = emptyList(),
+            updatedAt = requireNotNull(testNote.updatedAt)
+        )
 
         every { noteService.getNoteById(noteId, testUser.id) } returns response
 
@@ -191,7 +203,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("GET /api/notes/{id} (노트 ID로 조회) - 실패 (노트 없음)")
-    @WithMockUser
     fun getNoteByIdApi_fail_noteNotFound() {
         // given
         val invalidNoteId = UUID.fromString("00000000-0000-0000-0000-000000000000")
@@ -215,7 +226,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("GET /api/notes/{id} (노트 ID로 조회) - 실패 (소유자 불일치)")
-    @WithMockUser
     fun getNoteByIdApi_fail_noteOwnerMismatch() {
         // given
         val invalidUserId = invalidTestUser.id
@@ -237,11 +247,16 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("GET /api/notes (사용자 ID로 모든 노트 조회) - 성공")
-    @WithMockUser
     fun getAllNotesApi_success() {
         // given
-        val response =
-            NoteListResponse(testNote.id, testNote.title, testNote.content, requireNotNull(testNote.updatedAt))
+        val response = NoteListResponse(
+            id = testNote.id,
+            title = testNote.title,
+            content = testNote.content,
+            isFavorite = false,
+            tags = emptyList(),
+            updatedAt = requireNotNull(testNote.updatedAt)
+        )
 
         every { noteService.getAllNotesByUserId(testUser.id) } returns listOf(response)
 
@@ -260,13 +275,20 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes/{id} (노트 업데이트) - 성공")
-    @WithMockUser
     fun updateNoteApi_success() {
         // given
         val updatedTitle = "Updated note"
         val updatedContent = "This is a updated note content."
-        val request = NoteUpdateRequest(updatedTitle, updatedContent)
-        val response = NoteUpdateResponse(testNote.id, updatedTitle, updatedContent, LocalDateTime.now())
+        val tagNames = listOf("tag1", "tag2")
+        val request = NoteUpdateRequest(updatedTitle, updatedContent, tags = tagNames)
+        val response = NoteUpdateResponse(
+            id = testNote.id,
+            title = updatedTitle,
+            content = updatedContent,
+            isFavorite = false,
+            tags = tagNames,
+            updatedAt = LocalDateTime.now()
+        )
 
         every { noteService.updateNote(testUser.id, testNote.id, request) } returns response
 
@@ -280,6 +302,8 @@ class NoteControllerTest {
             jsonPath("$.data.id") { value(testNote.id.toString()) }
             jsonPath("$.data.title") { value(updatedTitle) }
             jsonPath("$.data.content") { value(updatedContent) }
+            jsonPath("$.data.isFavorite") { value(false) }
+            jsonPath("$.data.tags", hasSize<Any>(tagNames.size))
         }
 
         verify(exactly = 1) { noteService.updateNote(testUser.id, testNote.id, request) }
@@ -287,7 +311,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes/{id} (노트 업데이트) - 실패 (노트 없음)")
-    @WithMockUser
     fun updateNoteApi_fail_noteNotFound() {
         // given
         val updatedTitle = "Updated note"
@@ -313,7 +336,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes/{id} (노트 업데이트) - 실패 (소유자 불일치)")
-    @WithMockUser
     fun updateNoteApi_fail_noteOwnerMismatch() {
         // given
         val updatedTitle = "Updated note"
@@ -339,7 +361,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("POST /api/notes/{id} (노트 업데이트) - 실패 (빈 타이틀)")
-    @WithMockUser
     fun updateNoteApi_fail_noteTitleRequired() {
         // given
         val updatedContent = "This is a updated note content."
@@ -363,8 +384,68 @@ class NoteControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/notes/{id}/favorite (즐겨찾기 상태 토글) - 성공")
+    fun toggleIsFavorite_success() {
+        // given
+        val updatedNote = testNote.apply { isFavorite = true }
+        val response = NoteUpdateResponse.from(updatedNote)
+
+        every { noteService.toggleIsFavorite(testUser.id, testNote.id) } returns response
+
+        // when & then
+        mockMvc.post("/api/notes/{id}/favorite", testNote.id) {
+            with(user(CustomUserDetails(testUser)))
+        }.andExpect {
+            status { isOk() }
+            jsonPath("$.data.id") { value(testNote.id.toString()) }
+            jsonPath("$.data.isFavorite") { value(true) }
+        }
+
+        verify(exactly = 1) { noteService.toggleIsFavorite(testUser.id, testNote.id) }
+    }
+
+    @Test
+    @DisplayName("POST /api/notes/{id}/favorite (즐겨찾기 상태 토글) - 실패 (노트 없음)")
+    fun toggleIsFavorite_fail_noteNotFound() {
+        // given
+        val errorDetail = NoteErrorCode.NOTE_NOT_FOUND.getErrorDetail()
+
+        every { noteService.toggleIsFavorite(testUser.id, testNote.id) } throws NoteNotFoundException()
+
+        // when & then
+        mockMvc.post("/api/notes/{id}/favorite", testNote.id) {
+            with(user(CustomUserDetails(testUser)))
+        }.andExpect {
+            status { isEqualTo(errorDetail.status) }
+            jsonPath("$.code") { value(errorDetail.code) }
+            jsonPath("$.message") { value(errorDetail.message) }
+        }
+
+        verify(exactly = 1) { noteService.toggleIsFavorite(testUser.id, testNote.id) }
+    }
+
+    @Test
+    @DisplayName("POST /api/notes/{id}/favorite (즐겨찾기 상태 토글) - 실패 (소유자 불일치")
+    fun toggleIsFavorite_fail_noteOwnerMismatch() {
+        // given
+        val errorDetail = NoteErrorCode.NOTE_OWNER_MISMATCH.getErrorDetail()
+
+        every { noteService.toggleIsFavorite(invalidTestUser.id, testNote.id) } throws NoteOwnerMismatchException()
+
+        // when & then
+        mockMvc.post("/api/notes/{id}/favorite", testNote.id) {
+            with(user(CustomUserDetails(invalidTestUser)))
+        }.andExpect {
+            status { isEqualTo(errorDetail.status) }
+            jsonPath("$.code") { value(errorDetail.code) }
+            jsonPath("$.message") { value(errorDetail.message) }
+        }
+
+        verify(exactly = 1) { noteService.toggleIsFavorite(invalidTestUser.id, testNote.id) }
+    }
+
+    @Test
     @DisplayName("DELETE /api/notes/{id} (노트 삭제) - 성공")
-    @WithMockUser
     fun deleteNoteApi_success() {
         // given
 
@@ -382,7 +463,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("DELETE /api/notes/{id} (노트 삭제) - 실패 (노트 없음)")
-    @WithMockUser
     fun deleteNoteApi_fail_noteNotFound() {
         // given
         val errorDetail = NoteErrorCode.NOTE_NOT_FOUND.getErrorDetail()
@@ -403,7 +483,6 @@ class NoteControllerTest {
 
     @Test
     @DisplayName("DELETE /api/notes/{id} (노트 삭제) - 실패 (소유자 불일치)")
-    @WithMockUser
     fun deleteNoteApi_fail_noteOwnerMismatch() {
         // given
         val errorDetail = NoteErrorCode.NOTE_OWNER_MISMATCH.getErrorDetail()

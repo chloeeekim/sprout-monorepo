@@ -1,12 +1,15 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Note
+import chloe.sprout.backend.domain.NoteTag
+import chloe.sprout.backend.domain.Tag
 import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.NoteRepository
+import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -16,7 +19,8 @@ import java.util.*
 @Service
 class NoteService(
     private val noteRepository: NoteRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val tagRepository: TagRepository
 ) {
     @Transactional
     fun createNote(userId: UUID, request: NoteCreateRequest): NoteCreateResponse {
@@ -36,6 +40,9 @@ class NoteService(
             isFavorite = false, // false로 초기화
             owner = user
         )
+
+        // Note에 Tag 업데이트
+        updateTags(note, request.tags)
 
         // DB 저장
         val save = noteRepository.save(note)
@@ -87,6 +94,7 @@ class NoteService(
             content = request.content
             noteRepository.save(this)
         }
+        updateTags(note, request.tags)
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(note)
@@ -123,5 +131,13 @@ class NoteService(
 
         // Note 삭제
         noteRepository.delete(note)
+    }
+
+    private fun updateTags(note: Note, tagName: List<String>) {
+        note.noteTags.clear()
+        tagName.forEach { tagName ->
+            val tag = tagRepository.findByName(tagName) ?: Tag(name = tagName)
+            note.noteTags.add(NoteTag(note, tag))
+        }
     }
 }

@@ -3,6 +3,7 @@ package chloe.sprout.backend.service
 import chloe.sprout.backend.domain.Note
 import chloe.sprout.backend.domain.NoteTag
 import chloe.sprout.backend.domain.Tag
+import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
@@ -42,7 +43,7 @@ class NoteService(
         )
 
         // Note에 Tag 업데이트
-        updateTags(note, request.tags)
+        updateTags(note, request.tags, user)
 
         // DB 저장
         val save = noteRepository.save(note)
@@ -94,7 +95,7 @@ class NoteService(
             content = request.content
             noteRepository.save(this)
         }
-        updateTags(note, request.tags)
+        updateTags(note, request.tags, note.owner)
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(note)
@@ -133,10 +134,10 @@ class NoteService(
         noteRepository.delete(note)
     }
 
-    private fun updateTags(note: Note, tagName: List<String>) {
+    private fun updateTags(note: Note, tagName: List<String>, owner: User) {
         note.noteTags.clear()
         tagName.forEach { tagName ->
-            val tag = tagRepository.findByName(tagName) ?: Tag(name = tagName)
+            val tag = tagRepository.findByNameAndOwner(tagName, owner) ?: Tag(name = tagName, owner = owner)
             note.noteTags.add(NoteTag(note, tag))
         }
     }

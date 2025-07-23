@@ -23,11 +23,6 @@ class SecurityConfig(
     private val accessDeniedHandler: CustomAccessDeniedHandler
 ) {
     @Bean
-    fun passwordEncoder(): PasswordEncoder {
-        return BCryptPasswordEncoder()
-    }
-
-    @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http

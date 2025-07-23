@@ -18,6 +18,6 @@ class Note(
     @Column(nullable = false)
     var isFavorite: Boolean = false,
 
-    @OneToMany(mappedBy = "note_id", cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "note", cascade = [CascadeType.ALL], orphanRemoval = true)
     var noteTags: MutableSet<NoteTag> = mutableSetOf()
 ) : AbstractPersistableEntity()

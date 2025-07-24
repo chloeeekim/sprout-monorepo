@@ -7,14 +7,14 @@ interface NoteCardProps {
     onToggleFavorite: (id: string, isFavorite: boolean) => void;
 }
 
-const NoteCard: React.FC<NoteCardProps> = ({ note, onToggleFavorite }) => {
+const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, onToggleFavorite, onClick }) => {
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // 카드 전체 클릭 방지
         onToggleFavorite(note.id, !note.isFavorite);
     };
 
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+        <div onClick={onClick} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
                 <h2 className="text-xl font-bold text-sprout-accent">{note.title}</h2>
                 <button onClick={handleFavoriteClick} className="text-gray-400 hover:text-yellow-500">

@@ -3,13 +3,14 @@ import MainLayout from "../../components/layout/MainLayout";
 import { Note } from '@sprout/shared-types';
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
-import {Link} from "react-router-dom";
-import Button from "@/components/ui/Button";
+import { Link, useNavigate } from "react-router-dom";
+import Button from "../../components/ui/Button";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchNotes = async () => {
@@ -54,9 +55,8 @@ const NoteListPage: React.FC = () => {
             {!loading && !error && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {notes.map((note) => (
-                        <Link to={`/notes/${note.id}`} key={note.id} className="no-underline">
-                            <NoteCard key={note.id} note={note} onToggleFavorite={handleToggleFavorite} />
-                        </Link>
+                        <NoteCard key={note.id} note={note} onToggleFavorite={handleToggleFavorite}
+                                  onClick={() => navigate(`/notes/${note.id}`)} />
                     ))}
                 </div>
             )}

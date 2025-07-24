@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
 import apiClient from '../../lib/apiClient';
 import { Note } from '@sprout/shared-types';
 import MainLayout from "../../components/layout/MainLayout";
@@ -59,8 +60,7 @@ const NoteDetailPage: React.FC = () => {
                     최종 수정: {new Date(note.updatedAt).toISOString()}
                 </div>
                 <div className="prose max-w-none text-sprout-text mb-6">
-                    {/* TODO: 마크다운 렌더링 */}
-                    <p>{note.content}</p>
+                    <ReactMarkdown>{note.content || ''}</ReactMarkdown>
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {note.tags.map((tag, index) => (

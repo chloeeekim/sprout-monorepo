@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
+import { Star } from "lucide-react";
 import apiClient from '../../lib/apiClient';
 import { Note } from '@sprout/shared-types';
 import MainLayout from "../../components/layout/MainLayout";
@@ -50,6 +51,22 @@ const NoteDetailPage: React.FC = () => {
                 console.error("Error delete note: ", err);
             }
         }
+    };
+
+    const handleToggleFavorite = async () => {
+        if (!note || !id) return;
+
+        const originalNote = note;
+        const updatedNote = { ...note, isFavorite: !note.isFavorite };
+        setNote(updatedNote); // UI 즉시 업데이트
+
+        try {
+            await apiClient.post(`/api/notes/${id}/favorite`);
+        } catch (err) {
+            alert("즐겨찾기 상태 변경에 실패했습니다.");
+            setNote(originalNote); // 에러 발생 시 원래 상태로 복구
+            console.error(err);
+        }
     }
 
     if (loading) {
@@ -68,7 +85,12 @@ const NoteDetailPage: React.FC = () => {
         <MainLayout>
             <div className="p-4">
                 <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-3xl font-bold text-sprout-text">{note.title}</h1>
+                    <div className="flex items-center gap-4">
+                        <h1 className="text-3xl font-bold text-sprout-text">{note.title}</h1>
+                        <button onClick={handleToggleFavorite} className="text-gray-400 hover:text-yellow-500 focus:outline-none">
+                            <Star size={28} fill={note.isFavorite ? 'currentColor' : 'none'} />
+                        </button>
+                    </div>
                     <div className="flex gap-2">
                         <Link to={`/notes/${note.id}/edit`}>
                             <Button variant="primary">수정</Button>

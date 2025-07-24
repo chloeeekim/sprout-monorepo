@@ -3,6 +3,8 @@ import MainLayout from "../../components/layout/MainLayout";
 import { Note } from '@sprout/shared-types';
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
+import {Link} from "react-router-dom";
+import Button from "@/components/ui/Button";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -41,7 +43,9 @@ const NoteListPage: React.FC = () => {
         <MainLayout>
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-3xl font-bold text-sprout-text">내 노트</h1>
-                {/* TODO: 새 노트 작성 버튼 */}
+                <Link to="/notes/new">
+                    <Button variant="primary">새 노트 작성</Button>
+                </Link>
             </div>
 
             {loading && <p>로딩 중...</p>}
@@ -50,7 +54,9 @@ const NoteListPage: React.FC = () => {
             {!loading && !error && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {notes.map((note) => (
-                        <NoteCard key={note.id} note={note} onToggleFavorite={handleToggleFavorite} />
+                        <Link to={`/notes/${note.id}`} key={note.id} className="no-underline">
+                            <NoteCard key={note.id} note={note} onToggleFavorite={handleToggleFavorite} />
+                        </Link>
                     ))}
                 </div>
             )}

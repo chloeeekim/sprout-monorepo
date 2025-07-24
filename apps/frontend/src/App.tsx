@@ -4,6 +4,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import NoteListPage from "./pages/note/NoteListPage";
+import NoteCreatePage from "./pages/note/NoteCreatePage";
+import NoteDetailPage from "./pages/note/NoteDetailPage";
 
 // TODO 메인 페이지
 const HomePage: React.FC = () => {
@@ -33,6 +35,12 @@ function App() {
 
                 {/* 노트 리스트 페이지 */}
                 <Route path="/notes" element={<NoteListPage />} />
+
+                {/* 새 노트 작성 페이지 */}
+                <Route path="/notes/new" element={<NoteCreatePage />} />
+
+                {/* 노트 상세 페이지 */}
+                <Route path="/notes/:id" element={<NoteDetailPage />} />
             </Routes>
         </Router>
     );

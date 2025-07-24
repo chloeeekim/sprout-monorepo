@@ -37,6 +37,21 @@ const NoteDetailPage: React.FC = () => {
         fetchNote();
     }, [id]);
 
+    const handleDelete = async () => {
+        if (!id) return;
+
+        if (window.confirm("정말로 이 노트를 삭제하시겠습니까?")) {
+            try {
+                await apiClient.delete(`/api/notes/${id}`);
+                alert("노트가 성공적으로 삭제되었습니다.");
+                navigate('/notes');
+            } catch (err) {
+                alert("노트 삭제에 실패했습니다. 다시 시도해주세요.");
+                console.error("Error delete note: ", err);
+            }
+        }
+    }
+
     if (loading) {
         return <MainLayout><p>로딩 중...</p></MainLayout>;
     }
@@ -54,7 +69,14 @@ const NoteDetailPage: React.FC = () => {
             <div className="p-4">
                 <div className="flex justify-between items-center mb-4">
                     <h1 className="text-3xl font-bold text-sprout-text">{note.title}</h1>
-                    {/* TODO: 수정/삭제 버튼 */}
+                    <div className="flex gap-2">
+                        <Link to={`/notes/${note.id}/edit`}>
+                            <Button variant="primary">수정</Button>
+                        </Link>
+                        <Button variant="secondary" onClick={handleDelete}>
+                            삭제
+                        </Button>
+                    </div>
                 </div>
                 <div className="text-sm text-gray-500 mb-4">
                     최종 수정: {new Date(note.updatedAt).toISOString()}

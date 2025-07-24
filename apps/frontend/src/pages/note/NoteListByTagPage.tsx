@@ -23,6 +23,8 @@ const NoteListByTagPage: React.FC = () => {
         const fetchNotesByTag = async () => {
             try {
                 // TODO: 백에드 API에 태그 필터링 요청
+                const response = await apiClient.get(`/api/notes?tag=${encodeURIComponent(tagName)}`);
+                setNotes(response.data.data);
             } catch (err) {
                 setError(`'${tagName}' 태그를 가진 노트를 불러오는데 실패했습니다.`);
                 console.error(err);

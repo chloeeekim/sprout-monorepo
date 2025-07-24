@@ -28,8 +28,8 @@ class NoteController(
     }
 
     @GetMapping
-    fun getAllNotes(@AuthenticationPrincipal user: CustomUserDetails): ResponseEntity<List<NoteListResponse>> {
-        val response = noteService.getAllNotesByUserId(user.getUserId())
+    fun getAllNotes(@AuthenticationPrincipal user: CustomUserDetails, @RequestParam(required = false) tag: String?): ResponseEntity<List<NoteListResponse>> {
+        val response = noteService.getAllNotesByUserId(user.getUserId(), tag)
         return ResponseEntity.ok(response)
     }
 

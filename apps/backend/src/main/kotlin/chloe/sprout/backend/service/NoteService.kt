@@ -68,9 +68,17 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllNotesByUserId(userId: UUID): List<NoteListResponse> {
+    fun getAllNotesByUserId(userId: UUID, tag: String?): List<NoteListResponse> {
+        val notes = if (tag.isNullOrBlank()) {
+            // tag 파라미터가 없으면 모든 노트 반환
+            noteRepository.findAllByOwnerId(userId)
+        } else {
+            // tag 파라미터가 있으면 해당 태그를 가진 노트만 반환
+            noteRepository.findAllByOwnerIdAndTagName(userId, tag)
+        }
+
         // Note 목록을 response DTO로 변환 후 응답
-        return noteRepository.findAllByOwnerId(userId).map { NoteListResponse.from(it) }
+        return notes.map { NoteListResponse.from(it) }
     }
 
     @Transactional

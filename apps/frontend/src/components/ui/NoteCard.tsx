@@ -1,6 +1,7 @@
 import React from "react";
 import { Note } from "@sprout/shared-types";
 import { Star } from "lucide-react";
+import Tag from "./Tag";
 
 interface NoteCardProps {
     note: Note;
@@ -13,6 +14,10 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
         onToggleFavorite(note.id, !note.isFavorite);
     };
 
+    const handleTagClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // 카드 전체 클릭 방지
+    }
+
     return (
         <div onClick={onClick} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
             <div className="flex justify-between items-start mb-2">
@@ -24,11 +29,9 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
             <p className="text-sprout-text h-24 overflow-hidden text-ellipsis">
                 {note.content}
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2" onClick={handleTagClick}>
                 {note.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-gray-200 text-gray-700 rounded-full text-sm">
-                        {tag}
-                    </span>
+                    <Tag name={tag} key={tag} />
                 ))}
             </div>
         </div>

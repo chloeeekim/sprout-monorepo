@@ -6,6 +6,7 @@ import apiClient from '../../lib/apiClient';
 import { Note } from '@sprout/shared-types';
 import MainLayout from "../../components/layout/MainLayout";
 import Button from "../../components/ui/Button";
+import Tag from "../../components/ui/Tag"
 
 const NoteDetailPage: React.FC = () => {
     const [note, setNote] = useState<Note | null>(null);
@@ -108,9 +109,7 @@ const NoteDetailPage: React.FC = () => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                     {note.tags.map((tag, index) => (
-                        <span key={index} className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm">
-                            {tag}
-                        </span>
+                        <Tag key={index} name={tag} />
                     ))}
                 </div>
                 <div className="mt-8">

@@ -44,6 +44,9 @@ dependencies {
     // Database Drivers
 	runtimeOnly("org.postgresql:postgresql")
 
+    // Jackson
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     // Test Dependencies
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

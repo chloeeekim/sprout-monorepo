@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../components/ui/Input";
 import Button from "../../components/ui/Button";
 import apiClient from "../../lib/apiClient";
+import MainLayout from "../../components/layout/MainLayout";
 
 const NoteCreatePage: React.FC = () => {
     const [title, setTitle] = useState('');
@@ -28,44 +29,46 @@ const NoteCreatePage: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Create New Note</h1>
-            <form onSubmit={handleSubmit}>
-                <Input
-                    label="Title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="제목"
-                    required
-                    />
-                <div className="mb-4">
-                    <label htmlFor="content" className="block text-sprout-text text-sm font-bold mb-2">Content</label>
-                    <textarea
-                        id="content"
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        placeholder="내용을 입력하세요."
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-sprout-text leading-tight
-                        focus:outline-none focus:shadow-outline focus:border-sprout-accent h-48"
+        <MainLayout>
+            <div className="container mx-auto p-4">
+                <h1 className="text-2xl font-bold mb-4">Create New Note</h1>
+                <form onSubmit={handleSubmit}>
+                    <Input
+                        label="Title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="제목"
                         required
                         />
-                </div>
-                <Input
-                    label="Tags (comma separated)"
-                    value={tags}
-                    onChange={(e) => setTags(e.target.value)}
-                    placeholder="e.g., 회의록, 아이디어, 일기"
-                    />
-                <div className="flex items-center justify-between">
-                    <Button type="submit" variant="primary">
-                        Save Note
-                    </Button>
-                    <Button type="button" variant="secondary" onClick={() => navigate("/notes")}>
-                        Cancel
-                    </Button>
-                </div>
-            </form>
-        </div>
+                    <div className="mb-4">
+                        <label htmlFor="content" className="block text-sprout-text text-sm font-bold mb-2">Content</label>
+                        <textarea
+                            id="content"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="내용을 입력하세요."
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-sprout-text leading-tight
+                            focus:outline-none focus:shadow-outline focus:border-sprout-accent h-48"
+                            required
+                            />
+                    </div>
+                    <Input
+                        label="Tags (comma separated)"
+                        value={tags}
+                        onChange={(e) => setTags(e.target.value)}
+                        placeholder="e.g., 회의록, 아이디어, 일기"
+                        />
+                    <div className="flex items-center justify-between">
+                        <Button type="submit" variant="primary">
+                            Save Note
+                        </Button>
+                        <Button type="button" variant="secondary" onClick={() => navigate("/notes")}>
+                            Cancel
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </MainLayout>
     );
 };
 

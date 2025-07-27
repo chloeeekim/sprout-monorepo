@@ -1,15 +1,22 @@
 import React from "react";
 import { Search, StickyNote, GitFork, Shuffle, Tag } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface NavMenuProps {
     onSearchClick: () => void;
 }
 
 const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
+    const navigate = useNavigate();
+
+    const onAllNotesClick = () => {
+        navigate("/notes");
+    }
+
     // TODO: 실제 라우팅 구현
     const menuItems = [
         { icon: <Search size={16} className="text-gray-500" />, name: "검색", action: onSearchClick },
-        { icon: <StickyNote size={16} className="text-gray-500" />, name: "모든 노트" },
+        { icon: <StickyNote size={16} className="text-gray-500" />, name: "모든 노트", action: onAllNotesClick},
         { icon: <GitFork size={16} className="text-gray-500" />, name: "지식 그래프" },
         { icon: <Shuffle size={16} className="text-gray-500" />, name: "랜덤 노트 탐색" },
     ];

@@ -19,7 +19,7 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
     }
 
     return (
-        <div onClick={onClick} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer">
+        <div onClick={onClick} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
             <div className="flex justify-between items-start mb-2">
                 <h2 className="text-xl font-bold text-sprout-accent">{note.title}</h2>
                 <button onClick={handleFavoriteClick} className="text-gray-400 hover:text-yellow-500">

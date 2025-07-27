@@ -1,9 +1,29 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@plugin "tailwind-scrollbar-hide";
 
 @theme {
     --color-sprout-background: #F8F5F2;
     --color-sprout-text: #333333;
     --color-sprout-accent: #5A8B72;
     --color-sprout-accent-dark: #4a725e;
+}
+
+/* 100vh - h-{number} */
+@utility h-screen-minus-* {
+    height: calc(100vh - var(--spacing) * --value(integer));
+}
+
+/* scrollbar custom */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-gray-50);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-gray-300);
+    border-radius: 6px;
 }

@@ -99,9 +99,11 @@ class NoteService(
         val save = note.run {
             title = request.title
             content = request.content
+            updateTags(this, request.tags, this.owner)
             noteRepository.save(this)
         }
-        updateTags(note, request.tags, note.owner)
+
+        tagRepository.deleteUnusedTagsByOwnerId(userId);
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(save)

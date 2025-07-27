@@ -14,10 +14,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     return (
         <div className="flex h-screen bg-white text-gry-800">
             <Sidebar onSearchClick={openSearchModal} />
-            <main className="flex-1 overflow-y-auto">
-                <div className="p-8">
-                    {children}
-                </div>
+            <main className="flex-1 overflow-y-auto scrollbar-hide">
+                {children}
             </main>
             <SearchModal isOpen={isSearchModalOpen} onClose={closeSearchModal} />
         </div>

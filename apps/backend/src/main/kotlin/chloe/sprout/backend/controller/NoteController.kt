@@ -4,10 +4,14 @@ import chloe.sprout.backend.auth.CustomUserDetails
 import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.service.NoteService
 import jakarta.validation.Valid
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Slice
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+import java.time.LocalDateTime
 import java.util.*
 
 @RestController
@@ -28,9 +32,16 @@ class NoteController(
     }
 
     @GetMapping
-    fun getAllNotes(@AuthenticationPrincipal user: CustomUserDetails,
-                    @RequestParam(required = false) tag: String?, @RequestParam(required = false) keyword: String?): ResponseEntity<List<NoteListResponse>> {
-        val response = noteService.getAllNotesByUserId(user.getUserId(), tag, keyword)
+    fun getNotesByOwnerId(
+        @AuthenticationPrincipal user: CustomUserDetails,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) lastUpdatedAt: LocalDateTime?,
+        @RequestParam(required = false) lastId: UUID?,
+        @RequestParam(required = false) tag: String?,
+        @RequestParam(required = false) keyword: String?,
+        @RequestParam(defaultValue = "20") size: Int
+    ) : ResponseEntity<Slice<NoteListResponse>> {
+        val pageRequest = PageRequest.of(0, size)
+        val response = noteService.getAllNotesByUserId(user.getUserId(), lastUpdatedAt, lastId, tag, keyword, pageRequest)
         return ResponseEntity.ok(response)
     }
 

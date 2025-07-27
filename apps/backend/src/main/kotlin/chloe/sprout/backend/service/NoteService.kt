@@ -12,9 +12,12 @@ import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.NoteRepository
 import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -68,21 +71,9 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllNotesByUserId(userId: UUID, tag: String? = null, keyword: String? = null): List<NoteListResponse> {
-        val notes = when {
-            !tag.isNullOrBlank() -> {
-                // tag 파라미터가 있으면 해당 태그를 가진 노트만 반환
-                noteRepository.findAllByOwnerIdAndTagName(userId, tag)
-            }
-            !keyword.isNullOrBlank() -> {
-                // keyword 파라미터가 있으면 해당 키워드를 가진 노트만 반환
-                noteRepository.searchByOwnerIdAndKeyword(userId, keyword)
-            }
-            else -> {
-                // tag, keyword 파라미터가 없으면 모든 노트 반환
-                noteRepository.findAllByOwnerId(userId)
-            }
-        }
+    fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: LocalDateTime? = null, lastId: UUID? = null, tag: String? = null, keyword: String? = null, pageable: Pageable): Slice<NoteListResponse> {
+        // tag, keyword 등 컨디션에 따라 Note 목록을 Slice 형태로 조회
+        val notes = noteRepository.findNotesByOwnerId(userId, lastUpdatedAt, lastId, tag, keyword, pageable)
 
         // Note 목록을 response DTO로 변환 후 응답
         return notes.map { NoteListResponse.from(it) }

@@ -79,7 +79,7 @@ const NoteListByTagPage: React.FC = () => {
     return (
         <MainLayout>
             <div className="h-12 flex justify-between items-center m-8 mb-6">
-                <h1 className="text-3xl font-bold text-sprout-text">태그: {tagName}</h1>
+                <h1 className="text-3xl font-bold text-sprout-text">태그: #{tagName}</h1>
                 <Link to="/notes/new">
                     <Button variant="primary">새 노트 작성</Button>
                 </Link>

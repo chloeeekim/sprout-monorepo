@@ -68,7 +68,7 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllNotesByUserId(userId: UUID, tag: String?, keyword: String?): List<NoteListResponse> {
+    fun getAllNotesByUserId(userId: UUID, tag: String? = null, keyword: String? = null): List<NoteListResponse> {
         val notes = when {
             !tag.isNullOrBlank() -> {
                 // tag 파라미터가 있으면 해당 태그를 가진 노트만 반환

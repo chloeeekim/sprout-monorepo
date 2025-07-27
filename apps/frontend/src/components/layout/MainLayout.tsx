@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import Sidebar from "../ui/Sidebar";
-import SearchModal from "../ui/SearchModal";
+import SearchModal from "../modal/SearchModal";
 
 interface MainLayoutProps {
     children: React.ReactNode;

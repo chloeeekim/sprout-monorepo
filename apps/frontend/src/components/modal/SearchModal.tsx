@@ -28,7 +28,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
         const delayDebounceFn = setTimeout(async () => {
             try {
                 const response = await apiClient.get(`/api/notes?keyword=${searchTerm}`);
-                setSearchResults(response.data.data);
+                setSearchResults(response.data.data.content);
             } catch (err) {
                 console.error("Search failed: ", err);
                 setSearchResults([]);

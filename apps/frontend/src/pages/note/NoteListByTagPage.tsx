@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MainLayout from "../../components/layout/MainLayout";
-import { Note } from "@sprout/shared-types";
+import {Note, NoteListResponse} from "@sprout/shared-types";
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
 import Button from "../../components/ui/Button";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const NoteListByTagPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { tagName } = useParams<{ tagName: string }>();
+    const [hasNext, setHasNext] = useState(true);
+    const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
+    const [lastId, setLastId] = useState<string | null>(null);
+
     const navigate = useNavigate();
+
+    const PAGE_SIZE = 20;
 
     useEffect(() => {
         if (!tagName) {
@@ -20,21 +27,42 @@ const NoteListByTagPage: React.FC = () => {
             return;
         }
 
-        const fetchNotesByTag = async () => {
-            try {
-                // TODO: 백에드 API에 태그 필터링 요청
-                const response = await apiClient.get(`/api/notes?tag=${encodeURIComponent(tagName)}`);
-                setNotes(response.data.data);
-            } catch (err) {
-                setError(`'${tagName}' 태그를 가진 노트를 불러오는데 실패했습니다.`);
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchNotesByTag();
+        fetchNotesByTag(true);
     }, [tagName]);
+
+    const fetchNotesByTag = async (initialLoad: boolean)=> {
+        if (loading || (!initialLoad && !hasNext)) return; // 더 이상 불러올 노트가 없으면 중단
+
+        setLoading(true);
+        setError(null);
+        try {
+            const queryParams = new URLSearchParams();
+            queryParams.append("size", PAGE_SIZE.toString());
+            if (tagName) {
+                queryParams.append("tag", tagName);
+            }
+            if (!initialLoad && lastUpdatedAt && lastId) {
+                queryParams.append("lastUpdatedAt", lastUpdatedAt);
+                queryParams.append("lastId", lastId);
+            }
+
+            const response = await apiClient.get(`/api/notes?${queryParams.toString()}`)
+            const content: Array<NoteListResponse> = response.data.data.content;
+
+            setNotes((prevNotes) => initialLoad ? content : [...prevNotes, ...content]);
+            setHasNext(!response.data.data.last);
+
+            if (content.length > 0) {
+                setLastUpdatedAt(content[content.length - 1].updatedAt);
+                setLastId(content[content.length - 1].id);
+            }
+        } catch (err) {
+            setError(`'${tagName}' 태그를 가진 노트를 불러오는데 실패했습니다.`);
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleToggleFavorite = async (id: string, isFavorite: boolean) => {
         try {
@@ -50,8 +78,8 @@ const NoteListByTagPage: React.FC = () => {
 
     return (
         <MainLayout>
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-sprout-text">태그: ${tagName}</h1>
+            <div className="h-12 flex justify-between items-center m-8 mb-6">
+                <h1 className="text-3xl font-bold text-sprout-text">태그: {tagName}</h1>
                 <Link to="/notes/new">
                     <Button variant="primary">새 노트 작성</Button>
                 </Link>
@@ -60,18 +88,21 @@ const NoteListByTagPage: React.FC = () => {
             {loading && <p>로딩 중...</p>}
             {error && <p className="text-red-500">{error}</p> }
 
-            {!loading && !error && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {notes.map((note) => (
-                        <NoteCard note={note} onToggleFavorite={handleToggleFavorite}
-                                  onClick={() => navigate(`/notes/${note.id}`)} />
-                    ))}
-                </div>
-            )}
-            <div className="mt-8">
-                <Button variant="secondary" onClick={() => navigate("/notes")}>
-                    전체 노트 목록으로 돌아가기
-                </Button>
+            <div id="scrollableDiv" className="h-screen-minus-27 overflow-y-auto">
+                <InfiniteScroll
+                    next={() => fetchNotesByTag(false)}
+                    hasMore={hasNext}
+                    loader={<div className="loader" key={0}>로딩 중...</div>}
+                    dataLength={notes.length}
+                    scrollableTarget="scrollableDiv"
+                >
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-8 pt-2">
+                        {notes.map((note) => (
+                            <NoteCard key={note.id} note={note} onToggleFavorite={handleToggleFavorite}
+                                      onClick={() => navigate(`/notes/${note.id}`)} />
+                        ))}
+                    </div>
+                </InfiniteScroll>
             </div>
         </MainLayout>
     );

@@ -57,4 +57,8 @@ abstract class AbstractPersistableEntity : Persistable<UUID> {
     protected fun load() {
         _isNew = false
     }
+
+    fun touch() {
+        this.updatedAt = LocalDateTime.now()
+    }
 }

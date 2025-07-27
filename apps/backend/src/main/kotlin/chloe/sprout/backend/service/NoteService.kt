@@ -100,6 +100,7 @@ class NoteService(
             title = request.title
             content = request.content
             updateTags(this, request.tags, this.owner)
+            this.touch()
             noteRepository.save(this)
         }
 

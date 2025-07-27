@@ -43,9 +43,8 @@ const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
             ))}
             <div className="mt-6">
                 <h3 className="px-2 mb-2 text-xs font-semibold text-gray-400">TAGS</h3>
-
                 {tags.map((tag) => (
-                    <a href={`/notes/tags/${tag.tagName}`} className="flex items-center p-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100">
+                    <a href={`/notes/tags/${tag.tagName}`} key={tag.id} className="flex items-center p-2 text-sm text-gray-600 rounded-lg hover:bg-gray-100">
                         <div className="mr-3">
                             <Tag size={16} className="text-gray-500" />
                         </div>

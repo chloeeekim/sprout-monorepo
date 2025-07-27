@@ -9,4 +9,10 @@ import java.util.UUID
 @Repository
 interface TagRepository : JpaRepository<Tag, UUID> {
     fun findByNameAndOwner(name: String, owner: User): Tag?
+
+    fun findAllByOwnerId(ownerId: UUID): List<Tag>
+        WHERE t.owner.id = :ownerId
+        AND NOT EXISTS (
+            SELECT 1 FROM NoteTag nt
+            WHERE nt.tag = t
 }

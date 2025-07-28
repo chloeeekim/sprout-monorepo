@@ -3,35 +3,21 @@ import MainLayout from "../../components/layout/MainLayout";
 import {Note, NoteListResponse} from '@sprout/shared-types';
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
-import Input from "../../components/ui/Input";
 import InfiniteScroll from "react-infinite-scroll-component";
-import {Slice} from "@sprout/shared-types/slice";
-import {List} from "lucide-react";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [searchKeyword, setSearchKeyword] = useState<string>('');
-    const [currentSearchQuery, setCurrentSearchQuery] = useState<string>('');
     const [hasNext, setHasNext] = useState(true);
     const [lastUpdatedAt, setLastUpdatedAt] = useState<string | null>(null);
     const [lastId, setLastId] = useState<string | null>(null);
 
     const navigate = useNavigate();
-    const location = useLocation();
 
     const PAGE_SIZE = 20;
-
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const keywordFromUrl = queryParams.get('keyword');
-        if (keywordFromUrl) {
-            setSearchKeyword(keywordFromUrl);
-        }
-    }, [location.search]);
 
     useEffect(() => {
         fetchNotes(true);
@@ -80,29 +66,11 @@ const NoteListPage: React.FC = () => {
         }
     }
 
-    const handleSearch = () => {
-        setCurrentSearchQuery(searchKeyword);
-        const queryParams = new URLSearchParams();
-        if (searchKeyword) {
-            queryParams.append('keyword', searchKeyword);
-        }
-        navigate(`/notes?${queryParams.toString()}`)
-    }
-
     return (
         <MainLayout>
             <div className="h-12 flex justify-between items-center m-8 mb-6">
                 <h1 className="text-3xl font-bold text-sprout-text">내 노트</h1>
                 <div className="flex items-center gap-2">
-                    <Input
-                        type="text"
-                        placeholder="검색어를 입력하세요."
-                        value={searchKeyword}
-                        onChange={(e) => setSearchKeyword(e.target.value)}
-                        />
-                    <Button variant="primary" onClick={handleSearch}>
-                        검색
-                    </Button>
                     <Link to="/notes/new">
                         <Button variant="primary">새 노트 작성</Button>
                     </Link>

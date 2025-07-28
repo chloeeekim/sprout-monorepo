@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 @RestController
@@ -34,7 +35,7 @@ class NoteController(
     @GetMapping
     fun getNotesByOwnerId(
         @AuthenticationPrincipal user: CustomUserDetails,
-        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) lastUpdatedAt: LocalDateTime?,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) lastUpdatedAt: OffsetDateTime?,
         @RequestParam(required = false) lastId: UUID?,
         @RequestParam(required = false) tag: String?,
         @RequestParam(required = false) keyword: String?,

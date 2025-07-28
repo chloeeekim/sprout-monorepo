@@ -18,6 +18,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 @Service
@@ -71,7 +72,7 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: LocalDateTime? = null, lastId: UUID? = null, tag: String? = null, keyword: String? = null, pageable: Pageable): Slice<NoteListResponse> {
+    fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: OffsetDateTime? = null, lastId: UUID? = null, tag: String? = null, keyword: String? = null, pageable: Pageable): Slice<NoteListResponse> {
         // tag, keyword 등 컨디션에 따라 Note 목록을 Slice 형태로 조회
         val notes = noteRepository.findNotesByOwnerId(userId, lastUpdatedAt, lastId, tag, keyword, pageable)
 

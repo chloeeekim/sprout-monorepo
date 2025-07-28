@@ -3,6 +3,7 @@ package chloe.sprout.backend.dto
 import chloe.sprout.backend.domain.Note
 import jakarta.validation.constraints.NotBlank
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 data class NoteCreateRequest(
@@ -19,7 +20,7 @@ data class NoteCreateResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val createdAt: LocalDateTime
+    val createdAt: OffsetDateTime
 ) {
     companion object {
         fun from(note: Note): NoteCreateResponse {
@@ -49,7 +50,7 @@ data class NoteUpdateResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val updatedAt: LocalDateTime
+    val updatedAt: OffsetDateTime
 ) {
     companion object {
         fun from(note: Note): NoteUpdateResponse {
@@ -71,7 +72,7 @@ data class NoteDetailResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val updatedAt: LocalDateTime
+    val updatedAt: OffsetDateTime
 ) {
     companion object {
         fun from(note: Note): NoteDetailResponse {
@@ -93,7 +94,7 @@ data class NoteListResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val updatedAt: LocalDateTime
+    val updatedAt: OffsetDateTime
 ) {
     companion object {
         fun from(note: Note): NoteListResponse {

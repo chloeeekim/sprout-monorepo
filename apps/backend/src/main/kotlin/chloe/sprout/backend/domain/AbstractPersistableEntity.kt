@@ -8,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate
 import org.springframework.data.domain.Persistable
 import org.springframework.data.jpa.domain.support.AuditingEntityListener
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 import kotlin.jvm.Transient
 
@@ -21,11 +22,11 @@ abstract class AbstractPersistableEntity : Persistable<UUID> {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    var createdAt: LocalDateTime? = null
+    var createdAt: OffsetDateTime? = null
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    var updatedAt: LocalDateTime? = null
+    var updatedAt: OffsetDateTime? = null
 
     @Transient
     private var _isNew = true
@@ -59,6 +60,6 @@ abstract class AbstractPersistableEntity : Persistable<UUID> {
     }
 
     fun touch() {
-        this.updatedAt = LocalDateTime.now()
+        this.updatedAt = OffsetDateTime.now()
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Slice
 import org.springframework.data.domain.SliceImpl
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.UUID
 
 @Repository
@@ -18,7 +19,7 @@ class NoteRepositoryCustomImpl(
 ) : NoteRepositoryCustom {
     override fun findNotesByOwnerId(
         userId: UUID,
-        lastUpdatedAt: LocalDateTime?,
+        lastUpdatedAt: OffsetDateTime?,
         lastId: UUID?,
         tag: String?,
         keyword: String?,
@@ -45,7 +46,7 @@ class NoteRepositoryCustomImpl(
         return SliceImpl(result, pageable, hasNext);
     }
 
-    private fun ltUpdatedAtAndId(lastUpdatedAt: LocalDateTime?, id: UUID?): BooleanExpression? {
+    private fun ltUpdatedAtAndId(lastUpdatedAt: OffsetDateTime?, id: UUID?): BooleanExpression? {
         if (lastUpdatedAt == null || id == null) {
             return null
         }

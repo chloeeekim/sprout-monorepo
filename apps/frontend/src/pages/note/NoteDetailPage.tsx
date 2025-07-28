@@ -7,6 +7,12 @@ import { Note } from '@sprout/shared-types';
 import MainLayout from "../../components/layout/MainLayout";
 import Button from "../../components/ui/Button";
 import Tag from "../../components/ui/Tag"
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko";
+
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
 
 const NoteDetailPage: React.FC = () => {
     const [note, setNote] = useState<Note | null>(null);
@@ -70,6 +76,11 @@ const NoteDetailPage: React.FC = () => {
         }
     }
 
+    const formatUpdatedAt = (date: string) => {
+        const updatedAt = dayjs(date);
+        return updatedAt.format("YYYY-MM-DD HH:mm") + " · " + updatedAt.fromNow();
+    };
+
     if (loading) {
         return <MainLayout><p>로딩 중...</p></MainLayout>;
     }
@@ -102,7 +113,7 @@ const NoteDetailPage: React.FC = () => {
                     </div>
                 </div>
                 <div className="text-sm text-gray-500 mb-4">
-                    최종 수정: {new Date(note.updatedAt).toISOString()}
+                    최종 수정: {formatUpdatedAt(note.updatedAt)}
                 </div>
                 <div className="prose max-w-none text-sprout-text mb-6">
                     <ReactMarkdown>{note.content || ''}</ReactMarkdown>

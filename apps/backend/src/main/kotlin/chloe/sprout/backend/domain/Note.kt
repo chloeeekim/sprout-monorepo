@@ -19,5 +19,9 @@ class Note(
     var isFavorite: Boolean = false,
 
     @OneToMany(mappedBy = "note", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var noteTags: MutableSet<NoteTag> = mutableSetOf()
+    var noteTags: MutableSet<NoteTag> = mutableSetOf(),
+
+    @JoinColumn(name = "folder_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    var folder: Folder? = null
 ) : AbstractPersistableEntity()

@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import { Link } from "react-router-dom";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, Star } from "lucide-react";
 import apiClient from "../../lib/apiClient";
 import { Note } from "@sprout/shared-types";
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash-es";
+import dayjs from "dayjs";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -84,6 +85,11 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
         executeSearch(search);
     }
 
+    const formatUpdatedAt = (date: string) => {
+        const updatedAt = dayjs(date);
+        return updatedAt.format("YYYY-MM-DD") + " · " + updatedAt.fromNow();
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -106,13 +112,22 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                             <Loader2 className="animate-spin text-gray-400" />
                         </div>
                     ) : searchResults.length > 0 ? (
-                        <ul onMouseDown={(e) => e.preventDefault()}>
+                        <ul>
                             {searchResults.map((note) => (
-                                <li key={note.id} className="p-2 hover:bg-gray-100 cursor-pointer rounded-md">
-                                    <div onMouseUp={() => onSearchItemClick(note.id)}>
-                                        <p className="font-semibold">{note.title}</p>
-                                        <p className="text-sm text-gray-600 truncate">{note.content}</p>
+                                <li key={note.id} className="p-3 hover:bg-gray-100 cursor-pointer rounded-md"
+                                    onMouseDown={(e) => e.preventDefault()}
+                                    onClick={() => onSearchItemClick(note.id)}
+                                >
+                                    <div className="flex justify-between items-center mb-1">
+                                        <div className="flex-grow min-w-0">
+                                            <div className="flex items-center mr-3">
+                                                <p className="font-semibold text-base truncate">{note.title}</p>
+                                                {note.isFavorite && <Star size={14} className="text-yellow-500 fill-yellow-500 ml-2 flex-shrink-0" />}
+                                            </div>
+                                        </div>
+                                        <span className="text-xs text-gray-400 flex-shrink-0">{formatUpdatedAt(note.updatedAt)}</span>
                                     </div>
+                                    <p className="text-sm text-gray-600 truncate">{note.content}</p>
                                 </li>
                             ))}
                         </ul>

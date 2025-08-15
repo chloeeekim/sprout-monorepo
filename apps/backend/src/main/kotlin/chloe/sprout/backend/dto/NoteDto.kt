@@ -11,7 +11,8 @@ data class NoteCreateRequest(
     val title: String,
 
     val content: String?,
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val folderId: UUID? = null
 )
 
 data class NoteCreateResponse(
@@ -41,7 +42,8 @@ data class NoteUpdateRequest(
     val title: String,
 
     val content: String?,
-    val tags: List<String> = emptyList()
+    val tags: List<String> = emptyList(),
+    val folderId: UUID? = null
 )
 
 data class NoteUpdateResponse(

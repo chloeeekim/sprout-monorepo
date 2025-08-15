@@ -5,10 +5,12 @@ import chloe.sprout.backend.domain.NoteTag
 import chloe.sprout.backend.domain.Tag
 import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.*
+import chloe.sprout.backend.exception.folder.FolderNotFoundException
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
 import chloe.sprout.backend.exception.user.UserNotFoundException
+import chloe.sprout.backend.repository.FolderRepository
 import chloe.sprout.backend.repository.NoteRepository
 import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
@@ -25,7 +27,8 @@ import java.util.*
 class NoteService(
     private val noteRepository: NoteRepository,
     private val userRepository: UserRepository,
-    private val tagRepository: TagRepository
+    private val tagRepository: TagRepository,
+    private val folderRepository: FolderRepository
 ) {
     @Transactional
     fun createNote(userId: UUID, request: NoteCreateRequest): NoteCreateResponse {
@@ -38,12 +41,19 @@ class NoteService(
             throw NoteTitleRequiredException()
         }
 
+        // Folder 확인
+        val folder = request.folderId?.let {
+            folderRepository.findByIdOrNull(it)
+                ?: throw FolderNotFoundException()
+        }
+
         // Note entity 생성
         val note = Note(
             title = request.title,
             content = request.content,
             isFavorite = false, // false로 초기화
-            owner = user
+            owner = user,
+            folder = folder
         )
 
         // Note에 Tag 업데이트
@@ -96,11 +106,18 @@ class NoteService(
             throw NoteTitleRequiredException()
         }
 
+        // Folder 확인
+        val folder = request.folderId?.let {
+            folderRepository.findByIdOrNull(it)
+                ?: throw FolderNotFoundException()
+        }
+
         // note 내용 업데이트
         val save = note.run {
             title = request.title
             content = request.content
             updateTags(this, request.tags, this.owner)
+            this.folder = folder
             this.touch()
             noteRepository.save(this)
         }

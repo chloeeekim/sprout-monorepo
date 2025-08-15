@@ -95,7 +95,7 @@ const NoteDetailPage: React.FC = () => {
 
     return (
         <MainLayout>
-            <div className="p-4">
+            <div className="p-8">
                 <div className="flex justify-between items-center mb-4">
                     <div className="flex items-center gap-4">
                         <h1 className="text-3xl font-bold text-sprout-text">{note.title}</h1>

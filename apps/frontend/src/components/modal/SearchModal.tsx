@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect, useRef, useCallback} from "react";
 import { Link } from "react-router-dom";
 import { Search, Loader2 } from "lucide-react";
 import apiClient from "../../lib/apiClient";
 import { Note } from "@sprout/shared-types";
+import { useNavigate } from "react-router-dom";
+import { debounce } from "lodash-es";
 
 interface SearchModalProps {
     isOpen: boolean;
@@ -13,41 +15,74 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [searchResults, setSearchResults] = useState<Note[]>([]);
+    const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
-    // Debouncing을 위한 useEffect
+    const inputRef = useRef<HTMLInputElement>(null);
+    const navigate = useNavigate();
+
     useEffect(() => {
-        if (!searchTerm.trim()) {
+        if (isOpen && inputRef.current) {
+            inputRef.current.focus();
+        } else if (!isOpen) {
+            // 모달이 닫힐 때 상태 초기화
+            setSearchTerm('');
+            setSearchResults([]);
+            setIsLoading(false);
+        }
+    }, [isOpen]);
+
+    useEffect(() => {
+        const storedSearches = localStorage.getItem("recentSearches");
+        if (storedSearches) {
+            setRecentSearches(JSON.parse(storedSearches));
+        }
+    }, []);
+
+    const addRecentSearch = (search: string) => {
+        if (search) {
+            const newSearches = [search, ...recentSearches.filter(s => s !== search)].slice(0, 10);
+            setRecentSearches(newSearches);
+            localStorage.setItem("recentSearches", JSON.stringify(newSearches));
+        }
+    };
+
+    const executeSearch = async (search: string) => {
+        if (!search.trim()) {
             setSearchResults([]);
             setIsLoading(false);
             return;
         }
 
         setIsLoading(true);
-
-        // 500ms 이후에 검색을 실행하는 타이머 설정
-        const delayDebounceFn = setTimeout(async () => {
-            try {
-                const response = await apiClient.get(`/api/notes?keyword=${searchTerm}`);
-                setSearchResults(response.data.data.content);
-            } catch (err) {
-                console.error("Search failed: ", err);
-                setSearchResults([]);
-            } finally {
-                setIsLoading(false);
-            }
-        }, 500); // 500ms 지연
-
-        // searchTerm 변경 시 이전 타이머 취소하고 새 타이머 설정
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm]);
-
-    useEffect(() => {
-        if (!isOpen) {
-            setSearchTerm('');
+        try {
+            const response = await apiClient.get(`/api/notes?keyword=${search}`);
+            setSearchResults(response.data.data.content);
+        } catch (err) {
+            console.error("Search failed: ", err);
             setSearchResults([]);
+        } finally {
             setIsLoading(false);
         }
-    }, [isOpen]);
+    };
+
+    const debouncedSearch = useCallback(debounce(executeSearch, 500), []);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newSearchTerm = e.target.value;
+        setSearchTerm(newSearchTerm);
+        debouncedSearch(newSearchTerm);
+    };
+
+    const onSearchItemClick = (noteId: string) => {
+        addRecentSearch(searchTerm);
+        onClose();
+        navigate(`/notes/${noteId}`);
+    };
+
+    const handleRecentSearchClick = (search: string) => {
+        setSearchTerm(search);
+        executeSearch(search);
+    }
 
     if (!isOpen) return null;
 
@@ -58,29 +93,44 @@ const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
                     <div className="flex items-center">
                         <Search size={20} className="text-gray-400 mr-3" />
                         <input type="text" placeholder="노트 검색..." value={searchTerm}
-                               onChange={(e) => setSearchTerm(e.target.value)}
-                               className="w-full focus:outline-none text-sm" autoFocus />
+                               onChange={handleChange}
+                               className="w-full focus:outline-none text-sm"
+                               autoFocus
+                               ref={inputRef}
+                        />
                     </div>
                 </div>
-                <div className="p-4 h-96 overflow-y-auto">
+                <div className="p-4 h-96 overflow-y-auto items-center">
                     {isLoading ? (
                         <div className="flex justify-center items-center h-full">
                             <Loader2 className="animate-spin text-gray-400" />
                         </div>
                     ) : searchResults.length > 0 ? (
-                        <ul>
+                        <ul onMouseDown={(e) => e.preventDefault()}>
                             {searchResults.map((note) => (
                                 <li key={note.id} className="p-2 hover:bg-gray-100 cursor-pointer rounded-md">
-                                    <Link to={`/notes/${note.id}`} onClick={onClose}>
+                                    <div onMouseUp={() => onSearchItemClick(note.id)}>
                                         <p className="font-semibold">{note.title}</p>
                                         <p className="text-sm text-gray-600 truncate">{note.content}</p>
-                                    </Link>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <div className="text-center text-gray-500">
-                            {searchTerm ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : `검색어를 입력하세요.`}
+                        <div className="text-center text-gray-500 mt-6">
+                            {searchTerm.trim() !== "" ? `"${searchTerm}"에 대한 검색 결과가 없습니다.` : recentSearches.length > 0 ? (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-600">최근에 이런 내용을 검색하셨어요.</h3>
+                                    <div className="flex flex-wrap gap-2 justify-center mt-2">
+                                        {recentSearches.map((search, index) => (
+                                            <div key={index} onClick={() => handleRecentSearchClick(search)}
+                                                className="cursor-pointer px-2 py-1 border border-gray-200 hover:bg-gray-100 rounded-full text-sm no-underline">
+                                                {search}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ) : "검색어를 입력하세요."}
                         </div>
                     )}
                 </div>

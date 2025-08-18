@@ -14,6 +14,7 @@ interface NoteRepositoryCustom {
         lastId: UUID?,
         tag: String?,
         keyword: String?,
+        folderId: UUID?,
         pageable: Pageable
     ): Slice<Note>
 }

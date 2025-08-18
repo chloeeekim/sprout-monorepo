@@ -82,9 +82,9 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
-    fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: OffsetDateTime? = null, lastId: UUID? = null, tag: String? = null, keyword: String? = null, pageable: Pageable): Slice<NoteListResponse> {
+    fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: OffsetDateTime? = null, lastId: UUID? = null, tag: String? = null, keyword: String? = null, folderId: UUID? = null, pageable: Pageable): Slice<NoteListResponse> {
         // tag, keyword 등 컨디션에 따라 Note 목록을 Slice 형태로 조회
-        val notes = noteRepository.findNotesByOwnerId(userId, lastUpdatedAt, lastId, tag, keyword, pageable)
+        val notes = noteRepository.findNotesByOwnerId(userId, lastUpdatedAt, lastId, tag, keyword, folderId, pageable)
 
         // Note 목록을 response DTO로 변환 후 응답
         return notes.map { NoteListResponse.from(it) }

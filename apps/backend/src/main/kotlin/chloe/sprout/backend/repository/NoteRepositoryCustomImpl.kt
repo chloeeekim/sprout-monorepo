@@ -23,6 +23,7 @@ class NoteRepositoryCustomImpl(
         lastId: UUID?,
         tag: String?,
         keyword: String?,
+        folderId: UUID?,
         pageable: Pageable
     ): Slice<Note> {
         val size = pageable.pageSize
@@ -32,7 +33,8 @@ class NoteRepositoryCustomImpl(
                 note.owner.id.eq(userId),
                 ltUpdatedAtAndId(lastUpdatedAt, lastId),
                 tagCondition(tag),
-                keywordCondition(keyword)
+                keywordCondition(keyword),
+                folderCondition(folderId)
             )
             .orderBy(note.updatedAt.desc(), note.id.desc())
             .limit((size + 1).toLong())
@@ -71,5 +73,9 @@ class NoteRepositoryCustomImpl(
 
             titleMatch.or(contentMatch)
         }
+    }
+
+    private fun folderCondition(folderId: UUID?): BooleanExpression? {
+        return folderId?.let { note.folder.id.eq(it) }
     }
 }

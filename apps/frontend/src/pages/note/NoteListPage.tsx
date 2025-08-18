@@ -6,6 +6,7 @@ import NoteCard from "../../components/ui/NoteCard";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useFolderStore } from "../../stores/folderStore";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -16,12 +17,13 @@ const NoteListPage: React.FC = () => {
     const [lastId, setLastId] = useState<string | null>(null);
 
     const navigate = useNavigate();
+    const { selectedFolderId } = useFolderStore();
 
     const PAGE_SIZE = 20;
 
     useEffect(() => {
         fetchNotes(true);
-    }, []);
+    }, [selectedFolderId]);
 
     const fetchNotes = async (initialLoad: boolean) => {
         if (loading || (!initialLoad && !hasNext)) return; // 더 이상 불러올 노트가 없으면 중단
@@ -31,6 +33,10 @@ const NoteListPage: React.FC = () => {
         try {
             const queryParams = new URLSearchParams();
             queryParams.append("size", PAGE_SIZE.toString());
+
+            if (selectedFolderId) {
+                queryParams.append("folderId", selectedFolderId);
+            }
             if (!initialLoad && lastUpdatedAt && lastId) {
                 queryParams.append("lastUpdatedAt", lastUpdatedAt);
                 queryParams.append("lastId", lastId);
@@ -45,6 +51,9 @@ const NoteListPage: React.FC = () => {
             if (content.length > 0) {
                 setLastUpdatedAt(content[content.length - 1].updatedAt);
                 setLastId(content[content.length - 1].id);
+            } else if (initialLoad) {
+                setLastUpdatedAt(null);
+                setLastId(null);
             }
         } catch (err) {
             setError("노트를 불러오는 데 실패했습니다.");

@@ -3,6 +3,7 @@ import { Search, StickyNote, GitFork, Shuffle, Tag } from "lucide-react";
 import {Link, useNavigate} from "react-router-dom";
 import apiClient from "../../lib/apiClient";
 import { TagListResponse } from "@sprout/shared-types/tag";
+import {FolderList} from "./FolderList";
 
 interface NavMenuProps {
     onSearchClick: () => void;
@@ -41,6 +42,9 @@ const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
                     <span>{item.name}</span>
                 </button>
             ))}
+            <div className="mt-6">
+                <FolderList />
+            </div>
             <div className="mt-6">
                 <h3 className="px-2 mb-2 text-xs font-semibold text-gray-400">TAGS</h3>
                 {tags.map((tag) => (

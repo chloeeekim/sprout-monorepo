@@ -11,13 +11,15 @@ data class FolderCreateRequest(
 
 data class FolderCreateResponse(
     val id: UUID,
-    val name: String
+    val name: String,
+    val count: Int
 ) {
     companion object {
         fun from(folder: Folder): FolderCreateResponse {
             return FolderCreateResponse(
                 id = folder.id,
-                name = folder.name
+                name = folder.name,
+                count = 0
             )
         }
     }
@@ -30,13 +32,15 @@ data class FolderUpdateRequest(
 
 data class FolderUpdateResponse(
     val id: UUID,
-    val name: String
+    val name: String,
+    val count: Int
 ) {
     companion object {
         fun from(folder: Folder): FolderUpdateResponse {
             return FolderUpdateResponse(
                 id = folder.id,
-                name = folder.name
+                name = folder.name,
+                count = folder.notes.size
             )
         }
     }

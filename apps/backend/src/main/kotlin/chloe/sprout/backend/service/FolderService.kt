@@ -6,6 +6,7 @@ import chloe.sprout.backend.dto.FolderCreateResponse
 import chloe.sprout.backend.dto.FolderListResponse
 import chloe.sprout.backend.dto.FolderUpdateRequest
 import chloe.sprout.backend.dto.FolderUpdateResponse
+import chloe.sprout.backend.exception.folder.FolderNameAlreadyExistsException
 import chloe.sprout.backend.exception.folder.FolderNameRequiredException
 import chloe.sprout.backend.exception.folder.FolderNotFoundException
 import chloe.sprout.backend.exception.folder.FolderOwnerMismatchException
@@ -31,9 +32,24 @@ class FolderService(
         val user = userRepository.findByIdOrNull(userId)
             ?: throw UserNotFoundException()
 
+        // name blank 여부 확인
+        if (request.name.isBlank()) {
+            throw FolderNameRequiredException()
+        }
+
+        // Folder name 중복 검사: 동일한 이름의 폴더가 있으면 (2), (3) 등을 붙여 폴더명 변경
+        val folders = folderRepository.findByOwner(user)
+
+        var new_name = request.name
+        var uniq = 2
+        while (folders.any { it.name == new_name }) {
+            new_name = "${request.name} ($uniq)"
+            uniq += 1
+        }
+
         // Folder entity 생성
         val folder = Folder(
-            name = request.name,
+            name = new_name,
             owner = user
         )
 
@@ -60,6 +76,10 @@ class FolderService(
         val folder = folderRepository.findByIdOrNull(folderId)
             ?: throw FolderNotFoundException()
 
+        // User 확인
+        val user = userRepository.findByIdOrNull(userId)
+            ?: throw UserNotFoundException()
+
         // owner 일치 여부 확인
         if (folder.owner.id != userId) {
             throw FolderOwnerMismatchException()
@@ -68,6 +88,12 @@ class FolderService(
         // name blank 여부 확인
         if (request.name.isBlank()) {
             throw FolderNameRequiredException()
+        }
+
+        // Folder name 중복 검사
+        val folders = folderRepository.findByOwner(user)
+        if (folders.any { it.name == request.name }) {
+            throw FolderNameAlreadyExistsException()
         }
 
         // Folder 내용 업데이트

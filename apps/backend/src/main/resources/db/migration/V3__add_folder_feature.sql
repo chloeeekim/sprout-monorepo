@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS folders (
     owner_id UUID NOT NULL,
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
-    FOREIGN KEY (owner_id) REFERENCES users(id)
+    FOREIGN KEY (owner_id) REFERENCES users(id),
+    UNIQUE (name, owner_id)
 );
 
 -- notes table에 folder_id 컬럼 추가

@@ -7,9 +7,14 @@ import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
+import jakarta.persistence.UniqueConstraint
 
 @Entity
-@Table(name = "folders")
+@Table(name = "folders",
+    uniqueConstraints = [
+        UniqueConstraint(name = "uk_folder_name_owner", columnNames = ["name", "owner_id"])
+    ]
+)
 class Folder(
     @Column(nullable = false, length = 100)
     var name: String,

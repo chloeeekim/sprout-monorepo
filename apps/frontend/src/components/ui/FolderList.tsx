@@ -48,13 +48,13 @@ export const FolderList = () => {
         <div>
             <div className="flex justify-between items-center mb-2 px-2">
                 <h3 className="text-xs font-semibold uppercase text-gray-400">Folders</h3>
-                <button onClick={() => setIsCreating(true)} className="p-1 hover:bg-gray-200 rounded cursor-pointer">
+                <button onClick={() => setIsCreating(true)} className="p-1 hover:bg-gray-100 rounded cursor-pointer">
                     <FolderPlus size={16} className="text-gray-500" />
                 </button>
             </div>
             {isCreating && (
                 <div className="flex items-center w-full px-2 py-1">
-                    <FolderIcon size={16} className="mr-2 flex-shrink-0" />
+                    <FolderIcon size={16} className="mr-3 flex-shrink-0" />
                     <input type="text" value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
                            placeholder="New folder name" className="flex-1 min-w-0 bg-transparent focus:outline-none text-sm"
                            onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
@@ -78,7 +78,7 @@ export const FolderList = () => {
                     <li key={folder.id} className={`group flex items-center justify-between rounded-md text-sm ${selectedFolderId === folder.id ? 'bg-gray-200 font-semibold' : 'hover:bg-gray-100'}`}>
                         {editingFolderId === folder.id ? (
                             <div className="flex items-center w-full px-2 py-1">
-                                <FolderIcon size={16} className="mr-2 flex-shrink-0 text-gray-600" />
+                                <FolderIcon size={16} className="mr-3 flex-shrink-0 text-gray-500" />
                                 <input type="text" value={editingFolderName} onChange={(e) => setEditingFolderName(e.target.value)}
                                        onKeyDown={(e) => e.key === "Enter" && handleUpdateFolder(folder.id)}
                                        onBlur={handleCancelEditing} className="flex-1 min-w-0 bg-transparent focus:outline-none text-gray-600"
@@ -99,7 +99,7 @@ export const FolderList = () => {
                             <div className="flex items-center justify-between w-full cursor-pointer px-2 py-1"
                                  onClick={() => selectFolder(folder.id)}>
                                 <div className="flex items-center truncate">
-                                    <FolderIcon size={16} className="mr-2 flex-shrink-0 text-gray-600" />
+                                    <FolderIcon size={16} className="mr-3 flex-shrink-0 text-gray-500" />
                                     <span className="truncate text-gray-600">{folder.name}</span>
                                 </div>
                                 <div className="flex items-center justify-end w-12 h-7 pl-2">

@@ -21,7 +21,7 @@ data class NoteCreateResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<String>,
-    val createdAt: OffsetDateTime
+    val updatedAt: OffsetDateTime
 ) {
     companion object {
         fun from(note: Note): NoteCreateResponse {
@@ -31,7 +31,7 @@ data class NoteCreateResponse(
                 content = note.content,
                 isFavorite = note.isFavorite,
                 tags = note.noteTags.map { it.tag.name },
-                createdAt = requireNotNull(note.createdAt)
+                updatedAt = requireNotNull(note.updatedAt)
             )
         }
     }

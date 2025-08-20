@@ -75,7 +75,7 @@ export const FolderList = () => {
             )}
             <ul>
                 {folders.map((folder) => (
-                    <li key={folder.id} className={`group flex items-center justify-between rounded-md text-sm ${selectedFolderId === folder.id ? 'bg-gray-200 font-semibold' : 'hover:bg-gray-100'}`}>
+                    <li key={folder.id} className={`group flex items-center justify-between rounded-md text-sm ${selectedFolderId === folder.id ? 'bg-gray-100' : 'hover:bg-gray-100'}`}>
                         {editingFolderId === folder.id ? (
                             <div className="flex items-center w-full px-2 py-1">
                                 <FolderIcon size={16} className="mr-3 flex-shrink-0 text-gray-500" />

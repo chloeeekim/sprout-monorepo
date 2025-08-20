@@ -4,6 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import apiClient from "../../lib/apiClient";
 import { TagListResponse } from "@sprout/shared-types/tag";
 import {FolderList} from "./FolderList";
+import { useFolderStore } from "../../stores/folderStore";
 
 interface NavMenuProps {
     onSearchClick: () => void;
@@ -12,8 +13,10 @@ interface NavMenuProps {
 const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
     const [tags, setTags] = useState<TagListResponse[]>([]);
     const navigate = useNavigate();
+    const { unselectFolder } = useFolderStore();
 
     const onAllNotesClick = () => {
+        unselectFolder();
         navigate("/notes");
     }
 

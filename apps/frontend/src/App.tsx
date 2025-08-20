@@ -8,6 +8,7 @@ import NoteCreatePage from "./pages/note/NoteCreatePage";
 import NoteDetailPage from "./pages/note/NoteDetailPage";
 import NoteEditPage from "./pages/note/NoteEditPage";
 import NoteListByTagPage from "./pages/note/NoteListByTagPage";
+import NoteEditor from "./components/ui/NoteEditor"
 import NotePage from "./pages/note/NotePage";
 
 // TODO 메인 페이지

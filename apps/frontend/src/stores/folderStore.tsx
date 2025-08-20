@@ -6,6 +6,7 @@ import {parseAstAsync} from "vite";
 interface FolderState {
     folders: Folder[];
     selectedFolderId: string | null;
+    selectedFolderName: string | null;
     isLoading: boolean;
     error: Error | null;
     fetchFolders: () => Promise<void>;
@@ -13,11 +14,13 @@ interface FolderState {
     editFolder: (id: string, name: string) => Promise<void>;
     removeFolder: (id: string) => Promise<void>;
     selectFolder: (id: string | null) => void;
+    unselectFolder: () => void;
 }
 
-export const useFolderStore = create<FolderState>((set) => ({
+export const useFolderStore = create<FolderState>((set, get) => ({
     folders: [],
     selectedFolderId: null,
+    selectedFolderName: null,
     isLoading: false,
     error: null,
     fetchFolders: async () => {
@@ -58,6 +61,10 @@ export const useFolderStore = create<FolderState>((set) => ({
         }
     },
     selectFolder: (id: string | null) => {
-        set({ selectedFolderId: id });
+        const folderName = get().folders.find((f) => f.id === id)?.name;
+        set({ selectedFolderId: id, selectedFolderName: folderName });
+    },
+    unselectFolder: () => {
+        set({ selectedFolderId: null, selectedFolderName: null });
     },
 }));

@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useFolderStore } from "../../stores/folderStore";
+import TopBar from "../../components/ui/TopBar";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -17,7 +18,7 @@ const NoteListPage: React.FC = () => {
     const [lastId, setLastId] = useState<string | null>(null);
 
     const navigate = useNavigate();
-    const { selectedFolderId } = useFolderStore();
+    const { selectedFolderId, selectedFolderName, unselectFolder } = useFolderStore();
 
     const PAGE_SIZE = 20;
 
@@ -75,21 +76,33 @@ const NoteListPage: React.FC = () => {
         }
     }
 
+    const showAllNotes = () => {
+        unselectFolder();
+    }
+
     return (
         <MainLayout>
-            <div className="h-12 flex justify-between items-center m-8 mb-6">
-                <h1 className="text-3xl font-bold text-sprout-text">내 노트</h1>
-                <div className="flex items-center gap-2">
-                    <Link to="/notes/new">
-                        <Button variant="primary">새 노트 작성</Button>
-                    </Link>
+            <TopBar>
+                <div className="flex flex-row gap-1 items-center text-gray-600">
+                    <div className="hover:bg-gray-100 rounded p-1 cursor-pointer"
+                            onClick={showAllNotes}>
+                        <span>모든 노트</span>
+                    </div>
+                    {selectedFolderId && (
+                        <div className="flex flex-row gap-1 items-center">
+                            <span>/</span>
+                            <div className="hover:bg-gray-100 rounded p-1 cursor-pointer">
+                                <span>{selectedFolderName}</span>
+                            </div>
+                        </div>
+                    )}
                 </div>
-            </div>
+            </TopBar>
 
             {loading && <p>로딩 중...</p>}
             {error && <p className="text-red-500">{error}</p> }
 
-            <div id="scrollableDiv" className="h-screen-minus-27 overflow-y-auto">
+            <div id="scrollableDiv" className="pt-5 h-screen-minus-10 overflow-y-auto">
                 <InfiniteScroll
                     next={() => fetchNotes(false)}
                     hasMore={hasNext}

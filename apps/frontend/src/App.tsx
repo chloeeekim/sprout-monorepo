@@ -8,6 +8,7 @@ import NoteCreatePage from "./pages/note/NoteCreatePage";
 import NoteDetailPage from "./pages/note/NoteDetailPage";
 import NoteEditPage from "./pages/note/NoteEditPage";
 import NoteListByTagPage from "./pages/note/NoteListByTagPage";
+import NotePage from "./pages/note/NotePage";
 
 // TODO 메인 페이지
 const HomePage: React.FC = () => {
@@ -42,7 +43,8 @@ function App() {
                 <Route path="/notes/new" element={<NoteCreatePage />} />
 
                 {/* 노트 상세 페이지 */}
-                <Route path="/notes/:id" element={<NoteDetailPage />} />
+                {/*<Route path="/notes/:id" element={<NoteDetailPage />} />*/}
+                <Route path="/notes/:id" element={<NotePage />} />
 
                 {/* 노트 수정 페이지 */}
                 <Route path="/notes/:id/edit" element={<NoteEditPage />} />

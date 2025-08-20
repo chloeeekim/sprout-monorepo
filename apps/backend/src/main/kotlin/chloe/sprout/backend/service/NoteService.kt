@@ -66,6 +66,40 @@ class NoteService(
         return NoteCreateResponse.from(save)
     }
 
+    @Transactional
+    fun copyNote(noteId: UUID, userId: UUID): NoteCreateResponse {
+        // Note 확인
+        val note = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // Title 변경
+        val newTitle = note.title + " (1)";
+
+        // Note entity 생성
+        val newNote = Note(
+            title = newTitle,
+            content = note.content,
+            isFavorite = false,
+            owner = note.owner,
+            folder = note.folder
+        )
+
+        // Note에 Tag 업데이트
+        val tagNames = note.noteTags.map { it.tag.name }
+        updateTags(newNote, tagNames, newNote.owner);
+
+        // DB 저장
+        val save = noteRepository.save(newNote)
+
+        // response DTO로 변환 후 반환
+        return NoteCreateResponse.from(save)
+    }
+
     @Transactional(readOnly = true)
     fun getNoteById(noteId: UUID, userId: UUID): NoteDetailResponse {
         // Note 확인

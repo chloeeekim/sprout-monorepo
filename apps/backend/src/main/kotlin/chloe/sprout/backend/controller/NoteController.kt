@@ -26,6 +26,12 @@ class NoteController(
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
+    @PostMapping("/{id}/copy")
+    fun copyNote(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<NoteCreateResponse> {
+        val response = noteService.copyNote(id, user.getUserId())
+        return ResponseEntity.status(HttpStatus.CREATED).body(response)
+    }
+
     @GetMapping("/{id}")
     fun getNoteById(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<NoteDetailResponse> {
         val response = noteService.getNoteById(id, user.getUserId())

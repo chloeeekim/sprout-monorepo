@@ -13,7 +13,7 @@ class NoteTag(
     @JoinColumn(name = "note_id")
     val note: Note,
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST, CascadeType.MERGE])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     val tag: Tag
 ) : AbstractPersistableEntity()

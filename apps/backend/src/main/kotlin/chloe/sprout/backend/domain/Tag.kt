@@ -16,4 +16,7 @@ class Tag(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     var owner: User
-) : AbstractPersistableEntity()
+) : AbstractPersistableEntity() {
+    @OneToMany(mappedBy = "tag", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var noteTags: MutableSet<NoteTag> = mutableSetOf()
+}

@@ -13,4 +13,4 @@ export const createTag = async (name: string): Promise<Tag> => {
 
 export const deleteTag = async (id: string): Promise<void> => {
     await apiClient.delete(`/api/tags/${id}`);
-}
+};

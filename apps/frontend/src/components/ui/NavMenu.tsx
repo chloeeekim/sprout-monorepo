@@ -6,6 +6,7 @@ import { TagListResponse } from "@sprout/shared-types/tag";
 import {FolderList} from "./FolderList";
 import { useFolderStore } from "../../stores/folderStore";
 import {TagList} from "@/components/ui/TagList";
+import {useTagStore} from "@/stores/tagStore";
 
 interface NavMenuProps {
     onSearchClick: () => void;
@@ -15,9 +16,11 @@ const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
     const [tags, setTags] = useState<TagListResponse[]>([]);
     const navigate = useNavigate();
     const { unselectFolder } = useFolderStore();
+    const { unselectTag } = useTagStore();
 
     const onAllNotesClick = () => {
         unselectFolder();
+        unselectTag();
         navigate("/notes");
     }
 

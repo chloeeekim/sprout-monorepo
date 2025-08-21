@@ -9,6 +9,7 @@ import chloe.sprout.backend.exception.folder.FolderNotFoundException
 import chloe.sprout.backend.exception.note.NoteNotFoundException
 import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
+import chloe.sprout.backend.exception.tag.TagNotFoundException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.FolderRepository
 import chloe.sprout.backend.repository.NoteRepository
@@ -116,6 +117,18 @@ class NoteService(
 
     @Transactional(readOnly = true)
     fun getAllNotesByUserId(userId: UUID, lastUpdatedAt: OffsetDateTime? = null, lastId: UUID? = null, tagId: UUID? = null, keyword: String? = null, folderId: UUID? = null, pageable: Pageable): Slice<NoteListResponse> {
+        // Folder 존재 여부 확인
+        folderId?.let {
+            folderRepository.findByIdOrNull(it)
+                ?: throw FolderNotFoundException()
+        }
+
+        // Tag 존재 여부 확인
+        tagId?.let {
+            tagRepository.findByIdOrNull(it)
+                ?: throw TagNotFoundException()
+        }
+
         // tag, keyword 등 컨디션에 따라 Note 목록을 Slice 형태로 조회
         val notes = noteRepository.findNotesByOwnerId(userId, lastUpdatedAt, lastId, tagId, keyword, folderId, pageable)
 

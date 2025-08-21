@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import {useLocation, useNavigate, Link, useParams} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Note } from "@sprout/shared-types";
+import { Note, Tag } from "@sprout/shared-types";
 import apiClient from "../../lib/apiClient";
 import MainLayout from "../../components/layout/MainLayout";
-import Tag from "../../components/ui/Tag";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
 import LineSkeleton from "../../components/ui/LineSkeleton";
-import TopBar from "@/components/ui/TopBar";
+import TopBar from "../../components/ui/TopBar";
 import {Star, Trash2, Copy} from "lucide-react";
 import clsx from "clsx";
+import {useFolderStore} from "../../stores/folderStore";
+import SingleSelect from "../../components/ui/SingleSelect";
+import MultiSelect from "../../components/ui/MultiSelect";
+import {useTagStore} from "../../stores/tagStore";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -22,15 +25,18 @@ const NotePage: React.FC = () => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [updatedAt, setUpdatedAt] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
+    const [tag, setTag] = useState<string[]>([]);
     const [folder, setFolder] = useState<string | null>('');
     const [isFavorite, setIsFavorite] = useState(false);
 
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const { id } = useParams<{ id: string }>();
+
+    const { folders } = useFolderStore();
+    const { tags, addTag } = useTagStore();
 
     useEffect(() => {
         const fetchNote = async () => {
@@ -57,7 +63,7 @@ const NotePage: React.FC = () => {
             setTitle(note.title);
             setContent(note.content || '');
             setUpdatedAt(note.updatedAt);
-            setTags(note.tags);
+            setTag(note.tags.map(t => t.id));
             setFolder(note.folderId);
             setIsFavorite(note.isFavorite);
             setLoading(false);
@@ -111,6 +117,16 @@ const NotePage: React.FC = () => {
         }
     };
 
+    const handleFolderChange = (selectedFolderId: string) => {
+        setFolder(selectedFolderId);
+    };
+
+    const handleCreateTag = async (name: string) => {
+        if (name.trim()) {
+            await addTag(name.trim());
+        }
+    }
+
     return (
       <MainLayout>
           <TopBar>
@@ -151,30 +167,32 @@ const NotePage: React.FC = () => {
 
             {/* Meta Info Section */}
               {loading ? (
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-6 my-7">
                       <LineSkeleton width="w-60" height="h-5" rounded="rounded-lg" />
                       <LineSkeleton width="w-60" height="h-5" rounded="rounded-lg" />
                       <LineSkeleton width="w-60" height="h-5" rounded="rounded-lg" />
                   </div>
               ) : (
-                  <div className="flex flex-col gap-4 text-sm">
-                      <div className="flex items-center flex-row gap-2">
-                          <span className="text-gray-500 w-28">Last Updated</span>
-                          <span className="text-gray-700">
-                              {formatUpdatedAt(updatedAt)}
-                          </span>
-                      </div>
-                      <div className="flex items-center flex-row gap-2">
-                          <span className="text-gray-500 w-28">Folder</span>
-                          <div>
-                              <span>Add Folder</span>
+                  <div className="flex flex-col gap-1 text-sm">
+                      <div className="flex items-start flex-row gap-2">
+                          <span className="text-gray-500 w-28 mt-2">Last Updated</span>
+                          <div className="flex-1">
+                              <div className="p-2 w-full items-center text-gray-700">
+                                  {formatUpdatedAt(updatedAt)}
+                              </div>
                           </div>
                       </div>
-                      <div className="flex items-center flex-row gap-2">
-                          <span className="text-gray-500 w-28">Tags</span>
-                          <div>
-                              <span>Add Tags</span>
-                          </div>
+                      <div className="flex items-start flex-row gap-2">
+                          <span className="text-gray-500 w-28 mt-2">Folder</span>
+                          <SingleSelect options={folders.map(f => ({ value: f.id, label: f.name }))}
+                                        value={folder} onChange={handleFolderChange}
+                                        placeholder="Add Folder" />
+                      </div>
+                      <div className="flex items-start flex-row gap-2">
+                          <span className="text-gray-500 w-28 mt-2">Tags</span>
+                          <MultiSelect options={tags.map(t => ({ value: t.id, label: t.name }))}
+                                       selected={tag} onChange={setTag} onCreate={handleCreateTag}
+                                       placeholder="Add Tags" />
                       </div>
                   </div>
               )}
@@ -193,7 +211,7 @@ const NotePage: React.FC = () => {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="오늘 어떤 생각을 하셨나요?"
-                        className="w-full h-screen-minus-86 text-base text-gray-800 border-none focus:outline-none px-0 resize-none"
+                        className="w-full h-screen-minus-91 text-base text-gray-800 border-none focus:outline-none px-0 resize-none"
                     />
                 )}
             </div>

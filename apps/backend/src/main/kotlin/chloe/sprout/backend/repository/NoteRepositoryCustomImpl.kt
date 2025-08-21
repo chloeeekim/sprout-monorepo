@@ -21,7 +21,7 @@ class NoteRepositoryCustomImpl(
         userId: UUID,
         lastUpdatedAt: OffsetDateTime?,
         lastId: UUID?,
-        tag: String?,
+        tagId: UUID?,
         keyword: String?,
         folderId: UUID?,
         pageable: Pageable
@@ -32,7 +32,7 @@ class NoteRepositoryCustomImpl(
             .where(
                 note.owner.id.eq(userId),
                 ltUpdatedAtAndId(lastUpdatedAt, lastId),
-                tagCondition(tag),
+                tagCondition(tagId),
                 keywordCondition(keyword),
                 folderCondition(folderId)
             )
@@ -56,12 +56,8 @@ class NoteRepositoryCustomImpl(
             .or(note.updatedAt.eq(lastUpdatedAt).and(note.id.lt(id)))
     }
 
-    private fun tagCondition(tagName: String?): BooleanExpression? {
-        return if (tagName.isNullOrBlank()) {
-            null
-        } else {
-            note.noteTags.any().tag.name.eq(tagName)
-        }
+    private fun tagCondition(tagId: UUID?): BooleanExpression? {
+        return tagId?.let { note.noteTags.any().tag.id.eq(it) }
     }
 
     private fun keywordCondition(keyword: String?): BooleanExpression? {

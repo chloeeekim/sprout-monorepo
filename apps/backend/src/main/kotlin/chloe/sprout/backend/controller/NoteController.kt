@@ -43,13 +43,13 @@ class NoteController(
         @AuthenticationPrincipal user: CustomUserDetails,
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) lastUpdatedAt: OffsetDateTime?,
         @RequestParam(required = false) lastId: UUID?,
-        @RequestParam(required = false) tag: String?,
+        @RequestParam(required = false) tagId: UUID?,
         @RequestParam(required = false) keyword: String?,
         @RequestParam(required = false) folderId: UUID?,
         @RequestParam(defaultValue = "20") size: Int
     ) : ResponseEntity<Slice<NoteListResponse>> {
         val pageRequest = PageRequest.of(0, size)
-        val response = noteService.getAllNotesByUserId(user.getUserId(), lastUpdatedAt, lastId, tag, keyword, folderId, pageRequest)
+        val response = noteService.getAllNotesByUserId(user.getUserId(), lastUpdatedAt, lastId, tagId, keyword, folderId, pageRequest)
         return ResponseEntity.ok(response)
     }
 

@@ -12,7 +12,7 @@ interface NoteRepositoryCustom {
         userId: UUID,
         lastUpdatedAt: OffsetDateTime?,
         lastId: UUID?,
-        tag: String?,
+        tagId: UUID?,
         keyword: String?,
         folderId: UUID?,
         pageable: Pageable

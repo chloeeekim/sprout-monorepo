@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useFolderStore } from "../../stores/folderStore";
 import { FolderPlus, Trash2, Edit, Check, X, Folder as FolderIcon } from "lucide-react";
+import {useTagStore} from "@/stores/tagStore";
 
 export const FolderList = () => {
     const { folders, selectedFolderId, fetchFolders, addFolder, editFolder, removeFolder, selectFolder } = useFolderStore();
@@ -8,6 +9,7 @@ export const FolderList = () => {
     const [newFolderName, setNewFolderName] = useState('');
     const [editingFolderId, setEditingFolderId] = useState<string | null>(null);
     const [editingFolderName, setEditingFolderName] = useState('');
+    const { unselectTag } = useTagStore();
 
     useEffect(() => {
         fetchFolders();
@@ -43,6 +45,11 @@ export const FolderList = () => {
         setEditingFolderId(null);
         setEditingFolderName('');
     };
+
+    const handleClickFolder = (id: string) => {
+        unselectTag();
+        selectFolder(id);
+    }
 
     return (
         <div>
@@ -97,7 +104,7 @@ export const FolderList = () => {
                             </div>
                         ) : (
                             <div className="flex items-center justify-between w-full cursor-pointer px-2 py-1"
-                                 onClick={() => selectFolder(folder.id)}>
+                                 onClick={() => handleClickFolder(folder.id)}>
                                 <div className="flex items-center truncate">
                                     <FolderIcon size={16} className="mr-3 flex-shrink-0 text-gray-500" />
                                     <span className="truncate text-gray-600">{folder.name}</span>

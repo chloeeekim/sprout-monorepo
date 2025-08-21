@@ -41,7 +41,7 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
     const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const selectedOptions = selected.map(v => options.find(o => o.value === v));
+    const selectedOptions = selected.map(v => options.find(o => o.value === v)).filter(Boolean);
 
     useEffect(() => {
         const handleClickOutside = (event: globalThis.MouseEvent) => {

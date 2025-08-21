@@ -20,6 +20,7 @@ data class NoteCreateResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<TagDetailResponse>,
+    val folderId: UUID?,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -30,6 +31,7 @@ data class NoteCreateResponse(
                 content = note.content,
                 isFavorite = note.isFavorite,
                 tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
+                folderId = note.folder?.id,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -51,6 +53,7 @@ data class NoteUpdateResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<TagDetailResponse>,
+    val folderId: UUID?,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -61,6 +64,7 @@ data class NoteUpdateResponse(
                 content = note.content,
                 isFavorite = note.isFavorite,
                 tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
+                folderId = note.folder?.id,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -73,6 +77,7 @@ data class NoteDetailResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<TagDetailResponse>,
+    val folderId: UUID?,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -83,6 +88,7 @@ data class NoteDetailResponse(
                 content = note.content,
                 isFavorite = note.isFavorite,
                 tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
+                folderId = note.folder?.id,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -95,6 +101,7 @@ data class NoteListResponse(
     val content: String?,
     val isFavorite: Boolean,
     val tags: List<TagDetailResponse>,
+    val folderId: UUID?,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -105,6 +112,7 @@ data class NoteListResponse(
                 content = note.content,
                 isFavorite = note.isFavorite,
                 tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
+                folderId = note.folder?.id,
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }

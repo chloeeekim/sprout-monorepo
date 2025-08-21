@@ -21,13 +21,24 @@ const NoteListPage: React.FC = () => {
 
     const navigate = useNavigate();
     const { selectedFolderId, selectedFolderName, unselectFolder } = useFolderStore();
-    const { selectedTagId, selectedTagName, unselectTag } = useTagStore();
+    const { tags, selectedTagId, selectedTagName, unselectTag } = useTagStore();
 
     const PAGE_SIZE = 20;
+
+    const tagIds = new Set(tags.map((t) => t.id));
 
     useEffect(() => {
         fetchNotes(true);
     }, [selectedFolderId, selectedTagId]);
+
+    useEffect(() => {
+        setNotes((prev) =>
+            prev.map((note) => ({
+                ...note,
+                tags: note.tags.filter((tag) => tagIds.has(tag.id))
+            }))
+        )
+    }, [tags]);
 
     const fetchNotes = async (initialLoad: boolean) => {
         if (loading || (!initialLoad && !hasNext)) return; // 더 이상 불러올 노트가 없으면 중단

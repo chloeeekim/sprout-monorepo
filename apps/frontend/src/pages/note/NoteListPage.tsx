@@ -8,6 +8,8 @@ import Button from "../../components/ui/Button";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useFolderStore } from "../../stores/folderStore";
 import TopBar from "../../components/ui/TopBar";
+import {useTagStore} from "../../stores/tagStore";
+import {Folder, Folder as FolderIcon, Tag as TagIcon} from "lucide-react";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
@@ -19,12 +21,13 @@ const NoteListPage: React.FC = () => {
 
     const navigate = useNavigate();
     const { selectedFolderId, selectedFolderName, unselectFolder } = useFolderStore();
+    const { selectedTagId, selectedTagName, unselectTag } = useTagStore();
 
     const PAGE_SIZE = 20;
 
     useEffect(() => {
         fetchNotes(true);
-    }, [selectedFolderId]);
+    }, [selectedFolderId, selectedTagId]);
 
     const fetchNotes = async (initialLoad: boolean) => {
         if (loading || (!initialLoad && !hasNext)) return; // 더 이상 불러올 노트가 없으면 중단
@@ -37,6 +40,9 @@ const NoteListPage: React.FC = () => {
 
             if (selectedFolderId) {
                 queryParams.append("folderId", selectedFolderId);
+            }
+            if (selectedTagId) {
+                queryParams.append("tagId", selectedTagId);
             }
             if (!initialLoad && lastUpdatedAt && lastId) {
                 queryParams.append("lastUpdatedAt", lastUpdatedAt);
@@ -78,6 +84,7 @@ const NoteListPage: React.FC = () => {
 
     const showAllNotes = () => {
         unselectFolder();
+        unselectTag();
     }
 
     return (
@@ -92,7 +99,21 @@ const NoteListPage: React.FC = () => {
                         <div className="flex flex-row gap-1 items-center">
                             <span>/</span>
                             <div className="hover:bg-gray-100 rounded p-1 cursor-pointer">
-                                <span>{selectedFolderName}</span>
+                                <div className="flex items-center">
+                                    <FolderIcon size={16} className="mr-1 flex-shrink-0 text-gray-500" />
+                                    <span>{selectedFolderName}</span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {selectedTagId && (
+                        <div className="flex flex-row gap-1 items-center">
+                            <span>/</span>
+                            <div className="hover:bg-gray-100 rounded p-1 cursor-pointer">
+                                <div className="flex items-center">
+                                    <TagIcon size={16} className="mr-1 flex-shrink-0 text-gray-500" />
+                                    <span>{selectedTagName}</span>
+                                </div>
                             </div>
                         </div>
                     )}

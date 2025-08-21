@@ -20,7 +20,7 @@ data class NoteCreateResponse(
     val title: String,
     val content: String?,
     val isFavorite: Boolean,
-    val tags: List<String>,
+    val tags: List<TagDetailResponse>,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -30,7 +30,7 @@ data class NoteCreateResponse(
                 title = note.title,
                 content = note.content,
                 isFavorite = note.isFavorite,
-                tags = note.noteTags.map { it.tag.name },
+                tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -51,7 +51,7 @@ data class NoteUpdateResponse(
     val title: String,
     val content: String?,
     val isFavorite: Boolean,
-    val tags: List<String>,
+    val tags: List<TagDetailResponse>,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -61,7 +61,7 @@ data class NoteUpdateResponse(
                 title = note.title,
                 content = note.content,
                 isFavorite = note.isFavorite,
-                tags = note.noteTags.map { it.tag.name },
+                tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -73,7 +73,7 @@ data class NoteDetailResponse(
     val title: String,
     val content: String?,
     val isFavorite: Boolean,
-    val tags: List<String>,
+    val tags: List<TagDetailResponse>,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -83,7 +83,7 @@ data class NoteDetailResponse(
                 title = note.title,
                 content = note.content,
                 isFavorite = note.isFavorite,
-                tags = note.noteTags.map { it.tag.name },
+                tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }
@@ -95,7 +95,7 @@ data class NoteListResponse(
     val title: String,
     val content: String?,
     val isFavorite: Boolean,
-    val tags: List<String>,
+    val tags: List<TagDetailResponse>,
     val updatedAt: OffsetDateTime
 ) {
     companion object {
@@ -105,7 +105,7 @@ data class NoteListResponse(
                 title = note.title,
                 content = note.content,
                 isFavorite = note.isFavorite,
-                tags = note.noteTags.map { it.tag.name },
+                tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
                 updatedAt = requireNotNull(note.updatedAt)
             )
         }

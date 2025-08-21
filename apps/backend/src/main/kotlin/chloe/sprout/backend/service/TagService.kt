@@ -11,7 +11,7 @@ import chloe.sprout.backend.exception.tag.TagOwnerMismatchException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
-import jakarta.transaction.Transactional
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.util.*
@@ -50,7 +50,7 @@ class TagService(
         return TagCreateResponse.from(save)
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     fun getAllTagsByOwnerId(userId: UUID): List<TagListResponse> {
         // Tag 리스트를 response DTO 형태로 변환 후 응답
         return tagRepository.findAllByOwnerId(userId).map { TagListResponse.from(it) }

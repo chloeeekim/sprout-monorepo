@@ -1,10 +1,8 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Tag
-import chloe.sprout.backend.dto.NoteCreateResponse
 import chloe.sprout.backend.dto.TagCreateRequest
 import chloe.sprout.backend.dto.TagCreateResponse
-import chloe.sprout.backend.dto.TagDetailResponse
 import chloe.sprout.backend.dto.TagListResponse
 import chloe.sprout.backend.exception.tag.TagNameAlreadyExistsException
 import chloe.sprout.backend.exception.tag.TagNameRequiredException
@@ -16,7 +14,7 @@ import chloe.sprout.backend.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class TagService(

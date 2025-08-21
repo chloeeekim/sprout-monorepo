@@ -2,7 +2,7 @@ package chloe.sprout.backend.dto
 
 import chloe.sprout.backend.domain.Folder
 import jakarta.validation.constraints.NotBlank
-import java.util.UUID
+import java.util.*
 
 data class FolderCreateRequest(
     @field:NotBlank

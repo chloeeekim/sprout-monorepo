@@ -2,7 +2,6 @@ package chloe.sprout.backend.dto
 
 import chloe.sprout.backend.domain.Note
 import jakarta.validation.constraints.NotBlank
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.util.*
 

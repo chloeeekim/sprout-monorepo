@@ -1,11 +1,7 @@
 package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Folder
-import chloe.sprout.backend.dto.FolderCreateRequest
-import chloe.sprout.backend.dto.FolderCreateResponse
-import chloe.sprout.backend.dto.FolderListResponse
-import chloe.sprout.backend.dto.FolderUpdateRequest
-import chloe.sprout.backend.dto.FolderUpdateResponse
+import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.folder.FolderNameAlreadyExistsException
 import chloe.sprout.backend.exception.folder.FolderNameRequiredException
 import chloe.sprout.backend.exception.folder.FolderNotFoundException
@@ -14,10 +10,10 @@ import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.FolderRepository
 import chloe.sprout.backend.repository.NoteRepository
 import chloe.sprout.backend.repository.UserRepository
-import org.springframework.transaction.annotation.Transactional
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.util.UUID
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class FolderService(

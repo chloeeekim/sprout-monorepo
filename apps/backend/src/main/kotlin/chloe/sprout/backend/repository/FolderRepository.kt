@@ -4,7 +4,7 @@ import chloe.sprout.backend.domain.Folder
 import chloe.sprout.backend.domain.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
-import java.util.UUID
+import java.util.*
 
 @Repository
 interface FolderRepository : JpaRepository<Folder, UUID> {

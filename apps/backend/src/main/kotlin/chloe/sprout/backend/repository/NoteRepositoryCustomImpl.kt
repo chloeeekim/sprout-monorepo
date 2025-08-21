@@ -9,9 +9,8 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.domain.SliceImpl
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Repository
 class NoteRepositoryCustomImpl(

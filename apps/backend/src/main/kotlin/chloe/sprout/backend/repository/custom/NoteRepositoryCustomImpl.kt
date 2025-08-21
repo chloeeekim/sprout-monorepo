@@ -1,4 +1,4 @@
-package chloe.sprout.backend.repository
+package chloe.sprout.backend.repository.custom
 
 import chloe.sprout.backend.domain.Note
 import chloe.sprout.backend.domain.QNote.note

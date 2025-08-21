@@ -1,6 +1,6 @@
 export interface Tag {
     id: string;
-    tagName: string;
+    name: string;
 }
 
 // response types

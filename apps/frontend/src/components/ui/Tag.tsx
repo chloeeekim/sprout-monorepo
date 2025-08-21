@@ -1,16 +1,23 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {useTagStore} from "@/stores/tagStore";
 
 interface TagProps {
-    name: String;
+    name: string;
+    id: string;
 }
 
-const Tag: React.FC<TagProps> = ({ name }) => {
+const Tag: React.FC<TagProps> = ({ name, id }) => {
+    const { selectTag } = useTagStore();
+
+    const handleClick = (id: string) => {
+        selectTag(id);
+    }
+
     return (
-        <Link to={`/notes/tags/${encodeURIComponent(name)}`} className="bg-gray-200 hover:bg-amber-300 text-gray-700
-        px-2 py-1 rounded-full text-sm no-underline" >
+        <div className="bg-gray-200 hover:bg-amber-300 text-gray-700 px-2 py-1 rounded-full text-sm no-underline"
+             onClick={() => handleClick(id)} >
             {name}
-        </Link>
+        </div>
     );
 };
 

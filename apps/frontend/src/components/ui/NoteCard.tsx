@@ -45,7 +45,7 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
             </p>
             <div className="mt-4 flex flex-wrap gap-2" onClick={handleTagClick}>
                 {note.tags.map((tag) => (
-                    <Tag name={tag.name} key={tag.id} />
+                    <Tag name={tag.name} key={tag.id} id={tag.id} />
                 ))}
             </div>
         </div>

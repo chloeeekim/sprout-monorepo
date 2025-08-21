@@ -4,9 +4,6 @@ import ReactMarkdown from "react-markdown";
 import { Note, Tag } from "@sprout/shared-types";
 import apiClient from "../../lib/apiClient";
 import MainLayout from "../../components/layout/MainLayout";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/ko";
 import LineSkeleton from "../../components/ui/LineSkeleton";
 import TopBar from "../../components/ui/TopBar";
 import {Star, Trash2, Copy} from "lucide-react";
@@ -15,9 +12,7 @@ import {useFolderStore} from "../../stores/folderStore";
 import SingleSelect from "../../components/ui/SingleSelect";
 import MultiSelect from "../../components/ui/MultiSelect";
 import {useTagStore} from "../../stores/tagStore";
-
-dayjs.extend(relativeTime);
-dayjs.locale("ko");
+import formattedTime from "../../hooks/formattedTime";
 
 const NotePage: React.FC = () => {
     const location = useLocation();
@@ -37,6 +32,8 @@ const NotePage: React.FC = () => {
 
     const { folders } = useFolderStore();
     const { tags, addTag } = useTagStore();
+
+    const formatted = formattedTime(updatedAt);
 
     useEffect(() => {
         const fetchNote = async () => {
@@ -69,11 +66,6 @@ const NotePage: React.FC = () => {
             setLoading(false);
         }
     }, [note]);
-
-    const formatUpdatedAt = (date: string) => {
-        const updatedAt = dayjs(date);
-        return updatedAt.format("YYYY-MM-DD HH:mm") + " · " + updatedAt.fromNow();
-    }
 
     const handleDelete = async () => {
         if (!note || !id) return;
@@ -178,7 +170,7 @@ const NotePage: React.FC = () => {
                           <span className="text-gray-500 w-28 mt-2">Last Updated</span>
                           <div className="flex-1">
                               <div className="p-2 w-full items-center text-gray-700">
-                                  {formatUpdatedAt(updatedAt)}
+                                  {formatted}
                               </div>
                           </div>
                       </div>

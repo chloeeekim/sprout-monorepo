@@ -2,12 +2,7 @@ import React from "react";
 import { Note } from "@sprout/shared-types";
 import { Star } from "lucide-react";
 import Tag from "./Tag";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/ko";
-
-dayjs.extend(relativeTime);
-dayjs.locale("ko");
+import formattedTime from "@/hooks/formattedTime";
 
 interface NoteCardProps {
     note: Note;
@@ -15,6 +10,8 @@ interface NoteCardProps {
 }
 
 const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, onToggleFavorite, onClick }) => {
+    const formatted = formattedTime(note.updatedAt);
+
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // 카드 전체 클릭 방지
         onToggleFavorite(note.id, !note.isFavorite);
@@ -23,11 +20,6 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
     const handleTagClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // 카드 전체 클릭 방지
     }
-
-    const formatUpdatedAt = (date: string) => {
-        const updatedAt = dayjs(date);
-        return updatedAt.format("YYYY-MM-DD") + " · " + updatedAt.fromNow();
-    };
 
     return (
         <div onClick={onClick} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border border-gray-200">
@@ -38,7 +30,7 @@ const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, on
                 </button>
             </div>
             <p className="text-sm text-gray-500 mb-4">
-                {formatUpdatedAt(note.updatedAt)}
+                {formatted}
             </p>
             <p className="text-sprout-text h-24 overflow-hidden text-ellipsis">
                 {note.content}

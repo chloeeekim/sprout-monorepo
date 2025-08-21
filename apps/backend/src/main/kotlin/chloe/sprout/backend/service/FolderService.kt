@@ -91,8 +91,7 @@ class FolderService(
         }
 
         // Folder name 중복 검사
-        val folders = folderRepository.findByOwner(user)
-        if (folders.any { it.name == request.name }) {
+        folderRepository.findByNameAndOwner(request.name, user)?.let {
             throw FolderNameAlreadyExistsException()
         }
 

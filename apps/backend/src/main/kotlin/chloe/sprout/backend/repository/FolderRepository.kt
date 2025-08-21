@@ -9,4 +9,6 @@ import java.util.UUID
 @Repository
 interface FolderRepository : JpaRepository<Folder, UUID> {
     fun findByOwner(owner: User): List<Folder>
+
+    fun findByNameAndOwner(name: String, owner: User): Folder?
 }

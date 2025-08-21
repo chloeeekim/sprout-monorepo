@@ -7,7 +7,6 @@ import NoteListPage from "./pages/note/NoteListPage";
 import NoteCreatePage from "./pages/note/NoteCreatePage";
 import NoteDetailPage from "./pages/note/NoteDetailPage";
 import NoteEditPage from "./pages/note/NoteEditPage";
-import NoteListByTagPage from "./pages/note/NoteListByTagPage";
 import NoteEditor from "./components/ui/NoteEditor"
 import NotePage from "./pages/note/NotePage";
 
@@ -49,9 +48,6 @@ function App() {
 
                 {/* 노트 수정 페이지 */}
                 <Route path="/notes/:id/edit" element={<NoteEditPage />} />
-
-                {/* 태그별 노트 리스트 페이지 */}
-                <Route path="/notes/tags/:tagName" element={<NoteListByTagPage />} />
             </Routes>
         </Router>
     );

@@ -156,8 +156,6 @@ class NoteService(
             noteRepository.save(this)
         }
 
-        tagRepository.deleteUnusedTagsByOwnerId(userId);
-
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(save)
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useLocation, useNavigate, Link, useParams} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { Note, Tag } from "@sprout/shared-types";
@@ -13,6 +13,8 @@ import SingleSelect from "../../components/ui/SingleSelect";
 import MultiSelect from "../../components/ui/MultiSelect";
 import {useTagStore} from "../../stores/tagStore";
 import formattedTime from "../../hooks/formattedTime";
+import { debounce } from "lodash-es";
+import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote} from "../../lib/noteApi";
 
 const NotePage: React.FC = () => {
     const location = useLocation();
@@ -34,17 +36,20 @@ const NotePage: React.FC = () => {
     const { tags, addTag } = useTagStore();
 
     const formatted = formattedTime(updatedAt);
+    const isInitializing = useRef(true);
 
     useEffect(() => {
         const fetchNote = async () => {
-            try {
-                const response = await apiClient.get(`/api/notes/${id}`);
-                setNote(response.data.data);
-            } catch (err) {
-                setError("노트를 불러오는 데 실패했습니다.");
-                console.error(err);
-            } finally {
-                setLoading(false);
+            if (id) {
+                try {
+                    const response = await getNoteById(id);
+                    setNote(response);
+                } catch (err) {
+                    setError("노트를 불러오는 데 실패했습니다.");
+                    console.error(err);
+                } finally {
+                    setLoading(false);
+                }
             }
         }
 
@@ -64,15 +69,38 @@ const NotePage: React.FC = () => {
             setFolder(note.folderId);
             setIsFavorite(note.isFavorite);
             setLoading(false);
+
+            setTimeout(() => {
+                isInitializing.current = false;
+            }, 0);
         }
     }, [note]);
+
+    const executeUpdate = async (title: string, content: string | null, tags: string[], folder: string | null) => {
+        if (id) {
+            try {
+                const response = await updateNote(id, title, content, tags, folder);
+                setUpdatedAt(response.updatedAt);
+            } catch (err) {
+                console.error("Failed save note: ", err);
+            }
+        }
+    };
+
+    const debouncedUpdate = useCallback(debounce(executeUpdate, 500), []);
+
+    useEffect(() => {
+        if (isInitializing.current) return;
+
+        debouncedUpdate(title, content, tag, folder);
+    }, [title, content, tag, folder]);
 
     const handleDelete = async () => {
         if (!note || !id) return;
 
         if (window.confirm("정말로 이 노트를 삭제하시겠습니까?")) {
             try {
-                await apiClient.delete(`/api/notes/${id}`);
+                await deleteNote(id);
                 alert("노트가 성공적으로 삭제되었습니다.");
                 navigate('/notes');
             } catch (err) {
@@ -87,7 +115,7 @@ const NotePage: React.FC = () => {
 
         setIsFavorite(!isFavorite);
         try {
-            await apiClient.post(`/api/notes/${id}/favorite`);
+            await toggleIsFavorite(id);
         } catch (err) {
             alert("즐겨찾기 상태 변경에 실패했습니다.");
             setIsFavorite(!isFavorite);
@@ -99,18 +127,13 @@ const NotePage: React.FC = () => {
         if (!note || !id) return;
 
         try {
-            const response = await apiClient.post(`/api/notes/${id}/copy`);
-            const newNote = response.data.data;
+            const newNote = await copyNote(id);
 
             navigate(`/notes/${newNote.id}`, { state: { data: newNote }});
         } catch (err) {
             console.error("Error copy note: ", err);
             alert("노트 복제에 실패하였습니다. 다시 시도해주세요.");
         }
-    };
-
-    const handleFolderChange = (selectedFolderId: string) => {
-        setFolder(selectedFolderId);
     };
 
     const handleCreateTag = async (name: string) => {
@@ -177,7 +200,7 @@ const NotePage: React.FC = () => {
                       <div className="flex items-start flex-row gap-2">
                           <span className="text-gray-500 w-28 mt-2">Folder</span>
                           <SingleSelect options={folders.map(f => ({ value: f.id, label: f.name }))}
-                                        value={folder} onChange={handleFolderChange}
+                                        value={folder} onChange={setFolder}
                                         placeholder="Add Folder" />
                       </div>
                       <div className="flex items-start flex-row gap-2">

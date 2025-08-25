@@ -10,7 +10,7 @@ data class NoteCreateRequest(
     val title: String,
 
     val content: String?,
-    val tags: List<String> = emptyList(),
+    val tags: List<UUID> = emptyList(),
     val folderId: UUID? = null
 )
 
@@ -43,7 +43,7 @@ data class NoteUpdateRequest(
     val title: String,
 
     val content: String?,
-    val tags: List<String> = emptyList(),
+    val tags: List<UUID> = emptyList(),
     val folderId: UUID? = null
 )
 

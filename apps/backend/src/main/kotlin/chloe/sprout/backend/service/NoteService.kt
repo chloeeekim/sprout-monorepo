@@ -57,7 +57,7 @@ class NoteService(
         )
 
         // Note에 Tag 업데이트
-        updateTags(note, request.tags, user)
+        updateTags(note, request.tags)
 
         // DB 저장
         val save = noteRepository.save(note)
@@ -90,8 +90,8 @@ class NoteService(
         )
 
         // Note에 Tag 업데이트
-        val tagNames = note.noteTags.map { it.tag.name }
-        updateTags(newNote, tagNames, newNote.owner);
+        val tagIds = note.noteTags.map { it.tag.id }
+        updateTags(newNote, tagIds);
 
         // DB 저장
         val save = noteRepository.save(newNote)
@@ -162,7 +162,7 @@ class NoteService(
         val save = note.run {
             title = request.title
             content = request.content
-            updateTags(this, request.tags, this.owner)
+            updateTags(this, request.tags)
             this.folder = folder
             this.touch()
             noteRepository.save(this)
@@ -205,11 +205,25 @@ class NoteService(
         noteRepository.delete(note)
     }
 
-    private fun updateTags(note: Note, tagName: List<String>, owner: User) {
-        note.noteTags.clear()
-        tagName.forEach { t ->
-            val tag = tagRepository.findByNameAndOwner(t, owner) ?: Tag(name = t, owner = owner)
-            note.noteTags.add(NoteTag(note, tag))
+    private fun updateTags(note: Note, tagIds: List<UUID>) {
+        val currentTagIds = note.noteTags.map { it.tag.id!! }.toSet()
+        val newTagIds = tagIds.toSet()
+
+        // 추가해야 할 태그 ID
+        val toAdd = newTagIds - currentTagIds
+
+        // 제거해야 할 태그 ID
+        val toRemove = currentTagIds - newTagIds
+
+        // 기존 태그 제거
+        note.noteTags.removeIf { it.tag.id in toRemove }
+
+        // 새 태그 추가
+        if (toAdd.isNotEmpty()) {
+            val tagsToAdd = tagRepository.findAllById(toAdd)
+            tagsToAdd.forEach { tag ->
+                note.noteTags.add(NoteTag(note, tag))
+            }
         }
     }
 }

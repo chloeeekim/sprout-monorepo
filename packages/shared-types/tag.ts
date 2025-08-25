@@ -5,3 +5,4 @@ export interface Tag {
 
 // response types
 export type TagListResponse = Tag;
+export type TagDetailResponse = Tag;

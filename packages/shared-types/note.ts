@@ -1,9 +1,11 @@
+import {TagDetailResponse} from "./tag";
+
 export interface Note {
     id: string;
     title: string;
     content: string | null;
     isFavorite: boolean;
-    tags: string[];
+    tags: TagDetailResponse[];
     createdAt: string; // ISO 8601 format string
     updatedAt: string; // ISO 8601 format string
     folderId: string | null;

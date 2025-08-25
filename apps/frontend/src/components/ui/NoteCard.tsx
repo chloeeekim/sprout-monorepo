@@ -2,7 +2,7 @@ import React from "react";
 import { Note } from "@sprout/shared-types";
 import { Star } from "lucide-react";
 import Tag from "./Tag";
-import formattedTime from "@/hooks/formattedTime";
+import useFormattedTime from "@/hooks/useFormattedTime";
 
 interface NoteCardProps {
     note: Note;
@@ -10,7 +10,7 @@ interface NoteCardProps {
 }
 
 const NoteCard: React.FC<NoteCardProps & { onClick?: () => void }> = ({ note, onToggleFavorite, onClick }) => {
-    const formatted = formattedTime(note.updatedAt);
+    const formatted = useFormattedTime(note.updatedAt);
 
     const handleFavoriteClick = (e: React.MouseEvent) => {
         e.stopPropagation(); // 카드 전체 클릭 방지

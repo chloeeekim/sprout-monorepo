@@ -12,7 +12,7 @@ import {useFolderStore} from "../../stores/folderStore";
 import SingleSelect from "../../components/ui/SingleSelect";
 import MultiSelect from "../../components/ui/MultiSelect";
 import {useTagStore} from "../../stores/tagStore";
-import formattedTime from "../../hooks/formattedTime";
+import useFormattedTime from "../../hooks/useFormattedTime";
 import { debounce } from "lodash-es";
 import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote} from "../../lib/noteApi";
 
@@ -35,7 +35,7 @@ const NotePage: React.FC = () => {
     const { folders } = useFolderStore();
     const { tags, addTag } = useTagStore();
 
-    const formatted = formattedTime(updatedAt);
+    const formatted = useFormattedTime(updatedAt);
     const isInitializing = useRef(true);
 
     useEffect(() => {

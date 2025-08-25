@@ -6,7 +6,7 @@ import "dayjs/locale/ko";
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
 
-const formattedTime = (date?: string) => {
+const useFormattedTime = (date?: string) => {
     const [now, setNow] = useState(Date.now());
 
     useEffect(() => {
@@ -22,4 +22,4 @@ const formattedTime = (date?: string) => {
     return dayjsDate.format("YYYY-MM-DD HH:mm") + " · " + dayjsDate.fromNow();
 };
 
-export default formattedTime;
+export default useFormattedTime;

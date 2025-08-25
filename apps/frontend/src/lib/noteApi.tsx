@@ -1,0 +1,75 @@
+import apiClient from "./apiClient";
+import {Slice, Note, NoteListResponse} from "@sprout/shared-types";
+
+export const getNotes = async (
+    initialLoad: boolean,
+    lastUpdatedAt: string | null,
+    lastId: string | null,
+    tagId: string | null,
+    keyword: string | null,
+    folderId: string | null,
+    size: number
+): Promise<Slice<Note[]>> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("size", size.toString());
+
+    if (folderId) {
+        queryParams.append("folderId", folderId);
+    }
+    if (tagId) {
+        queryParams.append("tagId", tagId);
+    }
+    if (keyword) {
+        queryParams.append("keyword", keyword);
+    }
+    if (!initialLoad && lastUpdatedAt && lastId) {
+        queryParams.append("lastUpdatedAt", lastUpdatedAt);
+        queryParams.append("lastId", lastId);
+    }
+
+    const response = await apiClient.get(`/api/notes?${queryParams.toString()}`);
+    return response.data.data;
+};
+
+export const getNoteById = async (id: string): Promise<Note> => {
+    const response = await apiClient.get(`/api/notes/${id}`);
+    return response.data.data;
+};
+
+export const createNote = async (): Promise<Note> => {
+    const newNote = {
+        title: "Untitled",
+        content: null,
+        tags: [],
+        folderId: null
+    };
+
+    const response = await apiClient.post("/api/notes", newNote);
+    return response.data.data;
+};
+
+export const copyNote = async (id: string): Promise<Note> => {
+    const response = await apiClient.post(`/api/notes/${id}/copy`);
+    return response.data.data;
+};
+
+export const updateNote = async (
+    id: string,
+    title: string,
+    content: string | null,
+    tags: string[],
+    folderId: string | null
+): Promise<Note> => {
+    const updateNote = {title, content, tags, folderId};
+    const response = await apiClient.post(`/api/notes/${id}`, updateNote);
+    return response.data.data;
+};
+
+export const toggleIsFavorite = async (id: string): Promise<Note> => {
+    const response = await apiClient.post(`/api/notes/${id}/favorite`);
+    return response.data.data;
+};
+
+export const deleteNote = async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/notes/${id}`);
+};

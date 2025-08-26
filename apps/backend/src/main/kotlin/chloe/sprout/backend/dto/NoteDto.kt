@@ -2,6 +2,7 @@ package chloe.sprout.backend.dto
 
 import chloe.sprout.backend.domain.Note
 import jakarta.validation.constraints.NotBlank
+import org.openapitools.jackson.nullable.JsonNullable
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -39,12 +40,10 @@ data class NoteCreateResponse(
 }
 
 data class NoteUpdateRequest(
-    @field:NotBlank
-    val title: String,
-
-    val content: String?,
-    val tags: List<UUID> = emptyList(),
-    val folderId: UUID? = null
+    val title: JsonNullable<String> = JsonNullable.undefined(),
+    val content: JsonNullable<String?> = JsonNullable.undefined(),
+    val tags: JsonNullable<List<UUID>> = JsonNullable.undefined(),
+    val folderId: JsonNullable<UUID?> = JsonNullable.undefined()
 )
 
 data class NoteUpdateResponse(

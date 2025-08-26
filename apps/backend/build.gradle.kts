@@ -53,6 +53,7 @@ dependencies {
 
     // Jackson
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("org.openapitools:jackson-databind-nullable:0.2.4")
 
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")

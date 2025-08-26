@@ -147,26 +147,38 @@ class NoteService(
             throw NoteOwnerMismatchException()
         }
 
-        // title blank 여부 확인
-        if (request.title.isBlank()) {
-            throw NoteTitleRequiredException()
+        // title 업데이트
+        if (request.title.isPresent) {
+            val newTitle = request.title.orElse("").trim()
+            if (newTitle.isBlank()) {
+                throw NoteTitleRequiredException()
+            }
+            note.title = newTitle
         }
 
-        // Folder 확인
-        val folder = request.folderId?.let {
-            folderRepository.findByIdOrNull(it)
-                ?: throw FolderNotFoundException()
+        // content 업데이트
+        if (request.content.isPresent) {
+            note.content = request.content.orElse(null)
         }
 
-        // note 내용 업데이트
-        val save = note.run {
-            title = request.title
-            content = request.content
-            updateTags(this, request.tags)
-            this.folder = folder
-            this.touch()
-            noteRepository.save(this)
+        // folder 업데이트
+        if (request.folderId.isPresent) {
+            note.folder = request.folderId.orElse(null)?.let {
+                folderRepository.findByIdOrNull(it)
+                    ?: throw FolderNotFoundException()
+            }
         }
+
+        // tags 업데이트
+        if (request.tags.isPresent) {
+            updateTags(note, request.tags.orElse(emptyList()))
+        }
+
+        // timestamp 업데이트
+        note.touch()
+
+        // 업데이트된 노트 저장
+        val save = noteRepository.save(note)
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(save)

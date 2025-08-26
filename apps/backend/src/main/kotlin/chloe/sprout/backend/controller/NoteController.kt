@@ -52,7 +52,7 @@ class NoteController(
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/{id}")
+    @PatchMapping("/{id}")
     fun updateNote(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID, @RequestBody @Valid request: NoteUpdateRequest): ResponseEntity<NoteUpdateResponse> {
         val response = noteService.updateNote(user.getUserId(), id, request)
         return ResponseEntity.ok(response)

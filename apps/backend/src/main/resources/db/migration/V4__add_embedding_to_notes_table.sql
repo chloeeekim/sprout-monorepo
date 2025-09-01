@@ -2,7 +2,7 @@
 CREATE EXTENSION IF NOT EXISTS vector;
 
 -- notes 테이블에 embedding 컬럼 추가
--- OpenAI의 text-embedding-ada-002 모델이 사용하는 1536차원 벡터 저장
+-- OpenAI의 text-embedding-3-small 모델이 사용하는 1536차원 벡터 저장
 ALTER TABLE notes ADD COLUMN embedding vector(1536);
 
 -- notes 테이블에 embedding_updated_at 컬럼 추가

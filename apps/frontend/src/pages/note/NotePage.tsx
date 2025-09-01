@@ -1,7 +1,7 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useLocation, useNavigate, Link, useParams} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { Note, Tag } from "@sprout/shared-types";
+import {Note, NoteUpdateRequest, NoteUpdateResponse, Tag} from "@sprout/shared-types";
 import apiClient from "../../lib/apiClient";
 import MainLayout from "../../components/layout/MainLayout";
 import LineSkeleton from "../../components/ui/LineSkeleton";
@@ -15,15 +15,17 @@ import {useTagStore} from "../../stores/tagStore";
 import useFormattedTime from "../../hooks/useFormattedTime";
 import { debounce } from "lodash-es";
 import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote} from "../../lib/noteApi";
+import {TagDetailResponse} from "@sprout/shared-types/tag";
+import {buildPartialUpdate} from "../../utils/buildPartialUpdate";
 
 const NotePage: React.FC = () => {
     const location = useLocation();
-    const [note, setNote] = useState<Note | null>(null);
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    const [note, setNote] = useState<Note<TagDetailResponse[]> | null>(null);
+
+    const [initial, setInitial] = useState<NoteUpdateRequest | null>(null);
+    const [updated, setUpdated] = useState<NoteUpdateRequest | null>(null);
+
     const [updatedAt, setUpdatedAt] = useState('');
-    const [tag, setTag] = useState<string[]>([]);
-    const [folder, setFolder] = useState<string | null>('');
     const [isFavorite, setIsFavorite] = useState(false);
 
     const [loading, setLoading] = useState(true);
@@ -37,6 +39,14 @@ const NotePage: React.FC = () => {
 
     const formatted = useFormattedTime(updatedAt);
     const isInitializing = useRef(true);
+
+    // form 값 업데이트
+    const updateField = useCallback(<K extends keyof NoteUpdateRequest>(
+        key: K,
+        value: NoteUpdateRequest[K]
+    ) => {
+        setUpdated(prev => ({ ...prev, [key]: value }));
+    }, []);
 
     useEffect(() => {
         const fetchNote = async () => {
@@ -61,12 +71,17 @@ const NotePage: React.FC = () => {
     }, [id]);
 
     useEffect(() => {
-        if (note) {
-            setTitle(note.title);
-            setContent(note.content || '');
+        if (note && isInitializing.current) {
+            const data = {
+                title: note.title,
+                content: note.content,
+                tags: note.tags.map(t => t.id),
+                folderId: note.folderId
+            };
+            setInitial(data);
+            setUpdated(data);
+
             setUpdatedAt(note.updatedAt);
-            setTag(note.tags.map(t => t.id));
-            setFolder(note.folderId);
             setIsFavorite(note.isFavorite);
             setLoading(false);
 
@@ -76,24 +91,38 @@ const NotePage: React.FC = () => {
         }
     }, [note]);
 
-    const executeUpdate = async (title: string, content: string | null, tags: string[], folder: string | null) => {
-        if (id) {
-            try {
-                const response = await updateNote(id, title, content, tags, folder);
-                setUpdatedAt(response.updatedAt);
-            } catch (err) {
-                console.error("Failed save note: ", err);
-            }
-        }
-    };
+    const executeUpdate = useCallback (async () => {
+        if (!id) return;
 
-    const debouncedUpdate = useCallback(debounce(executeUpdate, 500), []);
+        const payload = buildPartialUpdate(initial, updated);
+        if (Object.keys(payload).length === 0) return; // 변경사항이 없는 경우 요청 안 함
+
+        try {
+            const response = await updateNote(id, payload);
+
+            if (response) {
+                setUpdatedAt(response.updatedAt);
+                setInitial(updated);
+            }
+        } catch (err) {
+            console.error("Failed save note: ", err);
+        }
+    }, [id, updated]);
+
+    const debouncedUpdate = useMemo(() => debounce(executeUpdate, 500), [executeUpdate]);
 
     useEffect(() => {
         if (isInitializing.current) return;
 
-        debouncedUpdate(title, content, tag, folder);
-    }, [title, content, tag, folder]);
+        debouncedUpdate();
+    }, [updated, debouncedUpdate]);
+
+    // 컴포넌트 언마운트 시 pending 요청 취소
+    useEffect(() => {
+        return () => {
+            debouncedUpdate.cancel();
+        };
+    }, [debouncedUpdate]);
 
     const handleDelete = async () => {
         if (!note || !id) return;
@@ -145,7 +174,7 @@ const NotePage: React.FC = () => {
     return (
       <MainLayout>
           <TopBar>
-              <span className="text-gray-600">{title}</span>
+              <span className="text-gray-600">{updated?.title ?? ""}</span>
               <div className="flex flex-row gap-1 items-center">
                   <button className={clsx("p-1 hover:bg-gray-100 rounded cursor-pointer", isFavorite ? "text-yellow-500" : "text-gray-500") }
                         onClick={handleToggleFavorite}>
@@ -170,8 +199,8 @@ const NotePage: React.FC = () => {
                 ) : (
                     <input
                         type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        value={updated?.title ?? ""}
+                        onChange={(e) => updateField("title", e.target.value)}
                         placeholder="Untitled"
                         className="w-full text-4xl font-semibold text-gray-800 border-none focus:outline-none px-0"
                     />
@@ -200,13 +229,14 @@ const NotePage: React.FC = () => {
                       <div className="flex items-start flex-row gap-2">
                           <span className="text-gray-500 w-28 mt-2">Folder</span>
                           <SingleSelect options={folders.map(f => ({ value: f.id, label: f.name }))}
-                                        value={folder} onChange={setFolder}
+                                        value={updated?.folderId ?? null} onChange={(val) => updateField("folderId", val)}
                                         placeholder="Add Folder" />
                       </div>
                       <div className="flex items-start flex-row gap-2">
                           <span className="text-gray-500 w-28 mt-2">Tags</span>
                           <MultiSelect options={tags.map(t => ({ value: t.id, label: t.name }))}
-                                       selected={tag} onChange={setTag} onCreate={handleCreateTag}
+                                       selected={updated?.tags ?? []} onChange={(val) => updateField("tags", val)}
+                                       onCreate={handleCreateTag}
                                        placeholder="Add Tags" />
                       </div>
                   </div>
@@ -223,8 +253,8 @@ const NotePage: React.FC = () => {
                     </div>
                 ) : (
                     <textarea
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
+                        value={updated?.content ?? ""}
+                        onChange={(e) => updateField("content", e.target.value)}
                         placeholder="오늘 어떤 생각을 하셨나요?"
                         className="w-full h-screen-minus-91 text-base text-gray-800 border-none focus:outline-none px-0 resize-none"
                     />

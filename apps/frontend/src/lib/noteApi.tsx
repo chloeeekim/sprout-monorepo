@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import {Slice, Note, NoteListResponse} from "@sprout/shared-types";
+import {Slice, Note, NoteListResponse, NoteUpdateRequest, NoteUpdateResponse} from "@sprout/shared-types";
 
 export const getNotes = async (
     initialLoad: boolean,
@@ -53,17 +53,10 @@ export const copyNote = async (id: string): Promise<Note> => {
     return response.data.data;
 };
 
-export const updateNote = async (
-    id: string,
-    title: string,
-    content: string | null,
-    tags: string[],
-    folderId: string | null
-): Promise<Note> => {
-    const updateNote = {title, content, tags, folderId};
-    const response = await apiClient.post(`/api/notes/${id}`, updateNote);
+export const updateNote = async (id: string, request: Partial<NoteUpdateRequest>): Promise<NoteUpdateResponse> => {
+    const response = await apiClient.patch(`/api/notes/${id}`, request);
     return response.data.data;
-};
+}
 
 export const toggleIsFavorite = async (id: string): Promise<Note> => {
     const response = await apiClient.post(`/api/notes/${id}/favorite`);

@@ -9,7 +9,7 @@ interface Option {
 interface SingleSelectProps {
     options: Option[];
     value: string | null;
-    onChange: (value: string) => void;
+    onChange: (value: string | null) => void;
     onCreate?: (inputBalue: string) => void;
     placeholder?: string;
 }

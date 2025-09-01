@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.*
+import kotlin.random.Random
 
 @Service
 class NoteService(
@@ -110,6 +111,16 @@ class NoteService(
         if (note.owner.id != userId) {
             throw NoteOwnerMismatchException()
         }
+
+        // response DTO로 변환 후 반환
+        return NoteDetailResponse.from(note)
+    }
+
+    @Transactional(readOnly = true)
+    fun getRandomNoteByUserId(userId: UUID): NoteDetailResponse {
+        // 랜덤 노트 탐색
+        val note = noteRepository.findRandomNoteByOwnerId(userId)
+            ?: throw NoteNotFoundException()
 
         // response DTO로 변환 후 반환
         return NoteDetailResponse.from(note)

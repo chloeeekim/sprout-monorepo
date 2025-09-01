@@ -37,6 +37,12 @@ class NoteController(
         return ResponseEntity.ok(response)
     }
 
+    @GetMapping("/random")
+    fun getRandomNote(@AuthenticationPrincipal user: CustomUserDetails): ResponseEntity<NoteDetailResponse> {
+        val response = noteService.getRandomNoteByUserId(user.getUserId())
+        return ResponseEntity.ok(response)
+    }
+
     @GetMapping
     fun getNotesByOwnerId(
         @AuthenticationPrincipal user: CustomUserDetails,

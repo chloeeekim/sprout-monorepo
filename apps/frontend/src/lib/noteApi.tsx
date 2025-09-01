@@ -1,5 +1,12 @@
 import apiClient from "./apiClient";
-import {Slice, Note, NoteListResponse, NoteUpdateRequest, NoteUpdateResponse} from "@sprout/shared-types";
+import {
+    Slice,
+    Note,
+    NoteListResponse,
+    NoteUpdateRequest,
+    NoteUpdateResponse,
+    NoteDetailResponse
+} from "@sprout/shared-types";
 
 export const getNotes = async (
     initialLoad: boolean,
@@ -35,6 +42,11 @@ export const getNoteById = async (id: string): Promise<Note> => {
     const response = await apiClient.get(`/api/notes/${id}`);
     return response.data.data;
 };
+
+export const getRandomNote = async (): Promise<NoteDetailResponse> => {
+    const response = await apiClient.get(`/api/notes/random`);
+    return response.data.data;
+}
 
 export const createNote = async (): Promise<Note> => {
     const newNote = {

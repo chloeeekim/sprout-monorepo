@@ -7,6 +7,7 @@ import {FolderList} from "./FolderList";
 import { useFolderStore } from "../../stores/folderStore";
 import {TagList} from "@/components/ui/TagList";
 import {useTagStore} from "@/stores/tagStore";
+import {getRandomNote} from "../../lib/noteApi";
 
 interface NavMenuProps {
     onSearchClick: () => void;
@@ -22,14 +23,28 @@ const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
         unselectFolder();
         unselectTag();
         navigate("/notes");
-    }
+    };
+
+    const onRandomNoteClick = async () => {
+        unselectFolder();
+        unselectTag();
+
+        try {
+            const rnote = await getRandomNote();
+            const noteId = rnote.id;
+            navigate(`/notes/${noteId}`, { state: { data: rnote }});
+        } catch (err) {
+            console.error("Error getting random note: ", err);
+            alert("랜덤 노트 탐색에 실패하였습니다.");
+        }
+    };
 
     // TODO: 실제 라우팅 구현
     const menuItems = [
         { icon: <Search size={16} className="text-gray-500" />, name: "검색", action: onSearchClick },
         { icon: <StickyNote size={16} className="text-gray-500" />, name: "모든 노트", action: onAllNotesClick},
         { icon: <GitFork size={16} className="text-gray-500" />, name: "지식 그래프" },
-        { icon: <Shuffle size={16} className="text-gray-500" />, name: "랜덤 노트 탐색" },
+        { icon: <Shuffle size={16} className="text-gray-500" />, name: "랜덤 노트 탐색", action: onRandomNoteClick },
     ];
 
     return (

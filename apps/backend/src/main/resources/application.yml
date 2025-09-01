@@ -27,3 +27,6 @@ jwt:
   secret: ${jwt.secret}
   access-expiration: ${jwt.expiration-ms}
   refresh-expiration: ${jwt.refresh-expiration-ms}
+openai:
+  model: text-embedding-3-small
+  secret-key: ${openai.secret-key}

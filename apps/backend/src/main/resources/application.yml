@@ -23,6 +23,11 @@ spring:
     enabled: true # Flyway 활성화
     locations: classpath:db/migration # 마이그레이션 스크립트 위치
     baseline-on-migrate: true # 기존 데이터베이스에 Flyway 메타 테이블이 없을 경우, 현재 스키마를 baseline으로 설정하고 마이그레이션 시작
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.UUIDSerializer
 jwt:
   secret: ${jwt.secret}
   access-expiration: ${jwt.expiration-ms}

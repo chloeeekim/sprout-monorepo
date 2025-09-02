@@ -18,6 +18,7 @@ import chloe.sprout.backend.repository.UserRepository
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.repository.findByIdOrNull
+import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
@@ -29,8 +30,13 @@ class NoteService(
     private val noteRepository: NoteRepository,
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
-    private val folderRepository: FolderRepository
+    private val folderRepository: FolderRepository,
+    private val kafkaTemplate: KafkaTemplate<String, UUID>
 ) {
+    companion object {
+        private const val NOTE_UPDATED_TOPIC = "note.updated"
+    }
+
     @Transactional
     fun createNote(userId: UUID, request: NoteCreateRequest): NoteCreateResponse {
         // User 확인
@@ -96,6 +102,11 @@ class NoteService(
 
         // DB 저장
         val save = noteRepository.save(newNote)
+
+        // Kafka 이벤트 발행
+        save.id.let {
+            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(), it)
+        }
 
         // response DTO로 변환 후 반환
         return NoteCreateResponse.from(save)
@@ -190,6 +201,11 @@ class NoteService(
 
         // 업데이트된 노트 저장
         val save = noteRepository.save(note)
+
+        // Kafka 이벤트 발행
+        save.id.let {
+            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(), it)
+        }
 
         // response DTO로 변환 후 반환
         return NoteUpdateResponse.from(save)

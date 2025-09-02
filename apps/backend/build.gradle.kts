@@ -58,6 +58,9 @@ dependencies {
     // Hibernate vector
     implementation("org.hibernate.com:hibernate-vector:6.5.2.Final")
 
+    // Kafka
+    implementation("org.springframework.kafka:spring-kafka")
+
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")
     implementation("org.flywaydb:flyway-database-postgresql")

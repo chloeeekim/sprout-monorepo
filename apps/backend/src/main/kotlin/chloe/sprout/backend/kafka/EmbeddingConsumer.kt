@@ -1,24 +1,19 @@
 package chloe.sprout.backend.kafka
 
-import chloe.sprout.backend.domain.NoteEmbedding
 import chloe.sprout.backend.openai.OpenAiService
-import chloe.sprout.backend.repository.NoteEmbeddingRepository
-import chloe.sprout.backend.repository.NoteRepository
+import chloe.sprout.backend.service.NoteEmbeddingService
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.util.UUID
 
 @Service
 class EmbeddingConsumer (
-    private val noteRepository: NoteRepository,
-    private val noteEmbeddingRepository: NoteEmbeddingRepository,
     private val openAiService: OpenAiService,
-    private val redisTemplate: RedisTemplate<String, String>
+    private val redisTemplate: RedisTemplate<String, String>,
+    private val noteEmbeddingService: NoteEmbeddingService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -29,7 +24,6 @@ class EmbeddingConsumer (
         private val LOCK_DURATION = Duration.ofMinutes(5)
     }
 
-    @Transactional
     @KafkaListener(topics = [NOTE_UPDATED_TOPIC], groupId = EMBEDDING_GROUP_ID)
     fun handleNoteUpdate(noteId: UUID) {
         // 잦은 임베딩 생성 요청을 막기 위해 특정 시간(5분) 동안 lock
@@ -44,37 +38,28 @@ class EmbeddingConsumer (
         try {
             log.info("Processing note ID: $noteId for embedding update.")
 
-            // Note 확인
-            val note = noteRepository.findByIdOrNull(noteId)
-            if (note == null) {
-                log.warn("Note ID $noteId not found. Cannot generate embedding.")
-                return
-            }
-
-            // 내용이 없는 경우, 임베딩 생성 안 함
-            if (note.content.isNullOrBlank()) return
-
-            // 임베딩할 콘텐츠 생성
-            val contentToEmbed = "Title: ${note.title}\n\nContent: ${note.content}"
+            // 임베딩할 콘텐츠 가져오기 - 없는 경우 재시도 할 수 있도록 lock 해제 후 종료
+            val contentToEmbed = noteEmbeddingService.getContentForEmbedding(noteId)
+                ?: run {
+                    redisTemplate.delete(lockKey)
+                    return
+                }
 
             // OpenAI API를 통해 임베딩 생성
             val embeddingVector = openAiService.createEmbedding(contentToEmbed)
 
-            // 기존 임베딩이 있는지 확인 후, 없으면 새로 생성하고 있으면 업데이트
-            val noteEmbedding = noteEmbeddingRepository.findByIdOrNull(noteId)
-                ?.apply {
-                    embedding = embeddingVector
-                }
-                ?: NoteEmbedding(
-                    id = noteId,
-                    note = note,
-                    embedding = embeddingVector
-                )
-
-            noteEmbeddingRepository.save(noteEmbedding)
-            log.info("Successfully generated and saved embedding for note ID $noteId")
+            // 임베딩 저장
+            if (embeddingVector != null) {
+                noteEmbeddingService.saveEmbedding(noteId, embeddingVector)
+                log.info("Successfully generated and saved embedding for note ID $noteId")
+            } else {
+                log.warn("Failed to generate embedding for note ID $noteId. Vector was null.")
+            }
         } catch (e: Exception) {
             log.error("Error processing embedding for note ID: $noteId", e)
+
+            // 오류 발생 시 재시도 할 수 있도록 lock 해제
+            redisTemplate.delete(lockKey)
         }
     }
 }

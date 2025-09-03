@@ -58,6 +58,12 @@ class NoteController(
         return ResponseEntity.ok(response)
     }
 
+    @GetMapping("/{id}/similar")
+    fun getSimilarNotes(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<List<NoteListResponse>> {
+        val response = noteService.findSimilarNotes(id, user.getUserId())
+        return ResponseEntity.ok(response)
+    }
+
     @PatchMapping("/{id}")
     fun updateNote(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID, @RequestBody @Valid request: NoteUpdateRequest): ResponseEntity<NoteUpdateResponse> {
         val response = noteService.updateNote(user.getUserId(), id, request)

@@ -2,8 +2,6 @@ package chloe.sprout.backend.service
 
 import chloe.sprout.backend.domain.Note
 import chloe.sprout.backend.domain.NoteTag
-import chloe.sprout.backend.domain.Tag
-import chloe.sprout.backend.domain.User
 import chloe.sprout.backend.dto.*
 import chloe.sprout.backend.exception.folder.FolderNotFoundException
 import chloe.sprout.backend.exception.note.NoteNotFoundException
@@ -12,6 +10,7 @@ import chloe.sprout.backend.exception.note.NoteTitleRequiredException
 import chloe.sprout.backend.exception.tag.TagNotFoundException
 import chloe.sprout.backend.exception.user.UserNotFoundException
 import chloe.sprout.backend.repository.FolderRepository
+import chloe.sprout.backend.repository.NoteEmbeddingRepository
 import chloe.sprout.backend.repository.NoteRepository
 import chloe.sprout.backend.repository.TagRepository
 import chloe.sprout.backend.repository.UserRepository
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.OffsetDateTime
 import java.util.*
-import kotlin.random.Random
 
 @Service
 class NoteService(
@@ -31,7 +29,8 @@ class NoteService(
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
     private val folderRepository: FolderRepository,
-    private val kafkaTemplate: KafkaTemplate<String, UUID>
+    private val kafkaTemplate: KafkaTemplate<String, UUID>,
+    private val noteEmbeddingRepository: NoteEmbeddingRepository
 ) {
     companion object {
         private const val NOTE_UPDATED_TOPIC = "note.updated"
@@ -156,6 +155,29 @@ class NoteService(
 
         // Note 목록을 response DTO로 변환 후 응답
         return notes.map { NoteListResponse.from(it) }
+    }
+
+    @Transactional(readOnly = true)
+    fun findSimilarNotes(noteId: UUID, userId: UUID): List<NoteListResponse> {
+        // Note 확인
+        val originNote = noteRepository.findByIdOrNull(noteId)
+            ?: throw NoteNotFoundException()
+
+        // owner 일치 여부 확인
+        if (originNote.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
+
+        // 노트의 임베딩 조회 - 임베딩이 없으면 빈 리스트 반환
+        val originEmbedding = noteEmbeddingRepository.findByIdOrNull(noteId)
+            ?: return emptyList()
+        originEmbedding.embedding ?: return emptyList()
+
+        // 유사 임베딩 검색
+        val similarEmbeddings = noteEmbeddingRepository.findSimilarEmbeddings(noteId, originEmbedding.embedding!!, 3)
+
+        // response DTO로 변환 후 응답
+        return similarEmbeddings.map { NoteListResponse.from(it.note) }
     }
 
     @Transactional

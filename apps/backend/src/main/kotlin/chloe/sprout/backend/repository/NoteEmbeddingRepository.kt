@@ -9,6 +9,14 @@ import java.util.UUID
 
 @Repository
 interface NoteEmbeddingRepository : JpaRepository<NoteEmbedding, UUID> {
+    @Query(value = """
+        SELECT * FROM note_embeddings
+        WHERE note_id != :noteId
+        ORDER BY embedding <=> CAST(:embedding AS vector)
+        LIMIT :limit
+    """, nativeQuery = true)
+    fun findSimilarEmbeddings(noteId: UUID, embedding: FloatArray, limit: Int): List<NoteEmbedding>
+
     @Modifying
     @Query(value = """
         INSERT INTO note_embeddings (note_id, embedding, created_at, updated_at)

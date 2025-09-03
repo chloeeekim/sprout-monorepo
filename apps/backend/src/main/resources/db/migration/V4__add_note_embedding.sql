@@ -3,7 +3,7 @@ CREATE EXTENSION IF NOT EXISTS vector;
 
 -- note_embeddings 테이블 생성
 -- note_id를 PK 및 FK로 사용
-CREATE TABLE note_embeddings (
+CREATE TABLE IF NOT EXISTS note_embeddings (
     note_id UUID PRIMARY KEY,
     embedding VECTOR(1536),
     created_at TIMESTAMPTZ NOT NULL,
@@ -13,4 +13,4 @@ CREATE TABLE note_embeddings (
 
 -- embedding 컬럼에 대한 인덱스를 생성하여 벡터 유사도 검색 성능 향상
 -- 코사인 유사도로 지정 (vector_cosine_ops)
-CREATE INDEX ON notes_embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+CREATE INDEX ON note_embeddings USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);

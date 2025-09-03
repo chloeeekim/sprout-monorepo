@@ -56,7 +56,7 @@ dependencies {
     implementation("org.openapitools:jackson-databind-nullable:0.2.4")
 
     // Hibernate vector
-    implementation("org.hibernate.com:hibernate-vector:6.5.2.Final")
+    implementation("org.hibernate:hibernate-vector:6.5.2.Final")
 
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")

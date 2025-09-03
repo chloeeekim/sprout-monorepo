@@ -11,11 +11,11 @@ import java.util.UUID
 interface NoteEmbeddingRepository : JpaRepository<NoteEmbedding, UUID> {
     @Query(value = """
         SELECT * FROM note_embeddings
-        WHERE note_id != :noteId
+        WHERE note_id != :noteId AND (embedding <=> CAST(:embedding AS vector)) < :threshold
         ORDER BY embedding <=> CAST(:embedding AS vector)
         LIMIT :limit
     """, nativeQuery = true)
-    fun findSimilarEmbeddings(noteId: UUID, embedding: FloatArray, limit: Int): List<NoteEmbedding>
+    fun findSimilarEmbeddings(noteId: UUID, embedding: FloatArray, limit: Int, threshold: Double): List<NoteEmbedding>
 
     @Modifying
     @Query(value = """

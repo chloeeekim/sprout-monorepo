@@ -174,7 +174,12 @@ class NoteService(
         originEmbedding.embedding ?: return emptyList()
 
         // 유사 임베딩 검색
-        val similarEmbeddings = noteEmbeddingRepository.findSimilarEmbeddings(noteId, originEmbedding.embedding!!, 3)
+        val similarEmbeddings = noteEmbeddingRepository.findSimilarEmbeddings(
+            noteId = noteId,
+            embedding = originEmbedding.embedding!!,
+            limit = 3,
+            threshold = 0.5
+        )
 
         // response DTO로 변환 후 응답
         return similarEmbeddings.map { NoteListResponse.from(it.note) }

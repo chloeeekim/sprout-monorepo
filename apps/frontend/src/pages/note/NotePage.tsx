@@ -6,7 +6,7 @@ import apiClient from "../../lib/apiClient";
 import MainLayout from "../../components/layout/MainLayout";
 import LineSkeleton from "../../components/ui/LineSkeleton";
 import TopBar from "../../components/ui/TopBar";
-import {Star, Trash2, Copy} from "lucide-react";
+import {Star, Trash2, Copy, Sparkles} from "lucide-react";
 import clsx from "clsx";
 import {useFolderStore} from "../../stores/folderStore";
 import SingleSelect from "../../components/ui/SingleSelect";
@@ -14,13 +14,17 @@ import MultiSelect from "../../components/ui/MultiSelect";
 import {useTagStore} from "../../stores/tagStore";
 import useFormattedTime from "../../hooks/useFormattedTime";
 import { debounce } from "lodash-es";
-import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote} from "../../lib/noteApi";
+import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote, getSimilarNotes} from "../../lib/noteApi";
 import {TagDetailResponse} from "@sprout/shared-types/tag";
 import {buildPartialUpdate} from "../../utils/buildPartialUpdate";
+import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 const NotePage: React.FC = () => {
     const location = useLocation();
     const [note, setNote] = useState<Note<TagDetailResponse[]> | null>(null);
+    const [similarNotes, setSimilarNotes] = useState<Note<TagDetailResponse[]>[]>([]);
+    const [isListVisible, setIsListVisible] = useState(false);
+    const [isSimilarUpdated, setIsSimilarUpdated] = useState(false);
 
     const [initial, setInitial] = useState<NoteUpdateRequest | null>(null);
     const [updated, setUpdated] = useState<NoteUpdateRequest | null>(null);
@@ -40,6 +44,8 @@ const NotePage: React.FC = () => {
     const formatted = useFormattedTime(updatedAt);
     const isInitializing = useRef(true);
 
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
     // form 값 업데이트
     const updateField = useCallback(<K extends keyof NoteUpdateRequest>(
         key: K,
@@ -48,12 +54,23 @@ const NotePage: React.FC = () => {
         setUpdated(prev => ({ ...prev, [key]: value }));
     }, []);
 
+    const fetchSimilarNotes = useCallback(async () => {
+        if (!id) return;
+        try {
+            const similar = await getSimilarNotes(id);
+            setSimilarNotes(similar);
+        } catch (err) {
+            console.error("Failed to fetch similar notes: ", err);
+        }
+    }, [id]);
+
     useEffect(() => {
         const fetchNote = async () => {
             if (id) {
                 try {
                     const response = await getNoteById(id);
                     setNote(response);
+                    await fetchSimilarNotes();
                 } catch (err) {
                     setError("노트를 불러오는 데 실패했습니다.");
                     console.error(err);
@@ -68,7 +85,7 @@ const NotePage: React.FC = () => {
         } else {
             fetchNote();
         }
-    }, [id]);
+    }, [id, fetchSimilarNotes]);
 
     useEffect(() => {
         if (note && isInitializing.current) {
@@ -90,6 +107,12 @@ const NotePage: React.FC = () => {
             }, 0);
         }
     }, [note]);
+
+    useEffect(() => {
+        if (similarNotes.length > 0) {
+            setIsSimilarUpdated(true);
+        }
+    }, [similarNotes]);
 
     const executeUpdate = useCallback (async () => {
         if (!id) return;
@@ -123,6 +146,56 @@ const NotePage: React.FC = () => {
             debouncedUpdate.cancel();
         };
     }, [debouncedUpdate]);
+
+    useEffect(() => {
+        // EventSource 연결을 중단하기 위한 AbortController
+        const controller = new AbortController();
+
+        const connect = async () => {
+            await fetchEventSource(`${API_BASE_URL}/api/sse/subscribe`, {
+                signal: controller.signal,
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                // 연결이 열렸을 때
+                onopen(response) {
+                    if (response.ok && response.headers.get('content-type') === 'text/event-stream') {
+                        console.log("SSE connection opened");
+                    } else {
+                        console.error("Failed to open SSE connection, status: ", response.status);
+                    }
+                },
+                // 메시지를 받았을 때
+                onmessage(event) {
+                    // 'embedding-updated' 이벤트일 경우에만 처리
+                    if (event.event === 'embedding-updated') {
+                        const data = JSON.parse(event.data);
+                        console.log("Embedding updated event received for note: ", data.noteId);
+
+                        // 현재 보고 있는 노트에 대한 알림일 경우, 유사 노트 목록 새로고침
+                        if (data.noteId === id) {
+                            console.log("Current note's embedding updated. Fetching similar notes...");
+                            fetchSimilarNotes();
+                        }
+                    }
+                },
+                // 에러가 발생했을 때
+                onerror(err) {
+                    console.error("SSE connection error: ", err);
+                    controller.abort();
+                    throw err;
+                }
+            });
+        }
+
+        connect();
+
+        // 컴포넌트 언마운트 될 때 SSE 연결을 닫음
+        return () => {
+            console.log("Closing SSE connection");
+            controller.abort();
+        };
+    }, [id, fetchSimilarNotes]);
 
     const handleDelete = async () => {
         if (!note || !id) return;
@@ -262,6 +335,35 @@ const NotePage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Similar Notes */}
+          <div className="fixed bottom-10 right-10 z-50">
+              {similarNotes.length > 0 && isListVisible && (
+                  <div className="absolute bottom-full right-0 w-60 max-h-96 overflow-y-auto">
+                      <ul>
+                          {similarNotes.map(note => (
+                              <li key={note.id} className="border border-gray-200 rounded-lg bg-white mb-2">
+                                  <Link to={`/notes/${note.id}`} onClick={() => setIsListVisible(false)}
+                                      className="block p-3 hover:bg-gray-50">
+                                      <p className="font-semibold text-gray-800 truncate">{note.title}</p>
+                                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{note.content || ''}</p>
+                                  </Link>
+                              </li>
+                          ))}
+                      </ul>
+                  </div>
+              )}
+              <button onClick={() => {setIsListVisible(!isListVisible); setIsSimilarUpdated(false);}}
+                      className={clsx("flex items-center justify-center w-16 h-16 rounded-full shadow-lg border-2 transition-colors",
+                          {
+                              "border-blue-500 bg-blue-500 cursor-pointer": similarNotes.length > 0,
+                              "border-gray-300 bg-gray-300 cursor-default": similarNotes.length === 0,
+                              "animate-pulse": isSimilarUpdated
+                          })}
+                      aria-label="Toggle similar notes">
+                  <Sparkles className="text-white" size={30} />
+              </button>
+          </div>
       </MainLayout>
     );
 };

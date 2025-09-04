@@ -2,6 +2,7 @@ package chloe.sprout.backend.kafka
 
 import chloe.sprout.backend.openai.OpenAiService
 import chloe.sprout.backend.service.NoteEmbeddingService
+import chloe.sprout.backend.service.SseService
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.kafka.annotation.KafkaListener
@@ -13,7 +14,8 @@ import java.util.UUID
 class EmbeddingConsumer (
     private val openAiService: OpenAiService,
     private val redisTemplate: RedisTemplate<String, String>,
-    private val noteEmbeddingService: NoteEmbeddingService
+    private val noteEmbeddingService: NoteEmbeddingService,
+    private val sseService: SseService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -25,7 +27,10 @@ class EmbeddingConsumer (
     }
 
     @KafkaListener(topics = [NOTE_UPDATED_TOPIC], groupId = EMBEDDING_GROUP_ID)
-    fun handleNoteUpdate(noteId: UUID) {
+    fun handleNoteUpdate(data: EmbeddingCreateRequest) {
+        val noteId = data.noteId
+        val userId = data.userId
+
         // 잦은 임베딩 생성 요청을 막기 위해 특정 시간(5분) 동안 lock
         val lockKey = "$LOCK_KEY_PREFIX$noteId"
         val isLocked = redisTemplate.opsForValue().setIfAbsent(lockKey, "locked", LOCK_DURATION)
@@ -52,6 +57,11 @@ class EmbeddingConsumer (
             if (embeddingVector != null) {
                 noteEmbeddingService.saveEmbedding(noteId, embeddingVector)
                 log.info("Successfully generated and saved embedding for note ID $noteId")
+
+                // 임베딩 저장 완료 알림 전송
+                val notification = mapOf("noteId" to noteId.toString())
+                sseService.send(userId, "embedding-updated", notification)
+                log.info("Sent embedding-updated notification for note ID $noteId to user $userId")
             } else {
                 log.warn("Failed to generate embedding for note ID $noteId. Vector was null.")
             }

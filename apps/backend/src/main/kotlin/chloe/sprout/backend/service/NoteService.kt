@@ -9,6 +9,7 @@ import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.exception.note.NoteTitleRequiredException
 import chloe.sprout.backend.exception.tag.TagNotFoundException
 import chloe.sprout.backend.exception.user.UserNotFoundException
+import chloe.sprout.backend.kafka.EmbeddingCreateRequest
 import chloe.sprout.backend.repository.FolderRepository
 import chloe.sprout.backend.repository.NoteEmbeddingRepository
 import chloe.sprout.backend.repository.NoteRepository
@@ -29,7 +30,7 @@ class NoteService(
     private val userRepository: UserRepository,
     private val tagRepository: TagRepository,
     private val folderRepository: FolderRepository,
-    private val kafkaTemplate: KafkaTemplate<String, UUID>,
+    private val kafkaTemplate: KafkaTemplate<String, Any>,
     private val noteEmbeddingRepository: NoteEmbeddingRepository
 ) {
     companion object {
@@ -104,7 +105,9 @@ class NoteService(
 
         // Kafka 이벤트 발행
         save.id.let {
-            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(), it)
+            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(),
+                EmbeddingCreateRequest(userId = userId, noteId = it)
+            )
         }
 
         // response DTO로 변환 후 반환
@@ -231,7 +234,9 @@ class NoteService(
 
         // Kafka 이벤트 발행
         save.id.let {
-            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(), it)
+            kafkaTemplate.send(NOTE_UPDATED_TOPIC, userId.toString(),
+                EmbeddingCreateRequest(userId = userId, noteId = it)
+            )
         }
 
         // response DTO로 변환 후 반환

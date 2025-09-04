@@ -78,3 +78,8 @@ export const toggleIsFavorite = async (id: string): Promise<Note> => {
 export const deleteNote = async (id: string): Promise<void> => {
     await apiClient.delete(`/api/notes/${id}`);
 };
+
+export const getSimilarNotes = async (id: string): Promise<NoteListResponse[]> => {
+    const response = await apiClient.get(`/api/notes/${id}/similar`);
+    return response.data.data;
+};

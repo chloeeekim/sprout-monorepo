@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:8080'
+    baseURL: import.meta.env.VITE_API_BASE_URL || ''
 });
 
 // 요청 인터셉터 : 모든 요청이 보내지기 전에 특정 작업을 수행하도록 설정

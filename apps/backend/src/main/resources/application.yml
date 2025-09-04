@@ -25,9 +25,14 @@ spring:
     baseline-on-migrate: true # 기존 데이터베이스에 Flyway 메타 테이블이 없을 경우, 현재 스키마를 baseline으로 설정하고 마이그레이션 시작
   kafka:
     bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: chloe.sprout.backend.kafka
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 jwt:
   secret: ${jwt.secret}
   access-expiration: ${jwt.expiration-ms}

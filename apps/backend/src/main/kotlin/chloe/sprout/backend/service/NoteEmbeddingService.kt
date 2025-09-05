@@ -1,5 +1,6 @@
 package chloe.sprout.backend.service
 
+import chloe.sprout.backend.exception.note.NoteOwnerMismatchException
 import chloe.sprout.backend.repository.NoteEmbeddingRepository
 import chloe.sprout.backend.repository.NoteRepository
 import org.slf4j.LoggerFactory
@@ -16,13 +17,18 @@ class NoteEmbeddingService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     @Transactional(readOnly = true)
-    fun getContentForEmbedding(noteId: UUID): String? {
+    fun getContentForEmbedding(userId: UUID, noteId: UUID): String? {
         // Note 확인
         val note = noteRepository.findByIdOrNull(noteId)
             ?: run {
                 logger.warn("Note not found for id $noteId. Cannot generate embedding.")
                 return null
             }
+
+        // owner 일치 여부 확인
+        if (note.owner.id != userId) {
+            throw NoteOwnerMismatchException()
+        }
 
         // content가 없는 경우 임베딩 생성 안 함
         if (note.content.isNullOrBlank()) {
@@ -35,10 +41,10 @@ class NoteEmbeddingService(
     }
 
     @Transactional
-    fun saveEmbedding(noteId: UUID, embeddingVector: FloatArray) {
+    fun saveEmbedding(userId: UUID, noteId: UUID, embeddingVector: FloatArray) {
         try {
             // 임베딩 upsert
-            noteEmbeddingRepository.upsertEmbedding(noteId, embeddingVector)
+            noteEmbeddingRepository.upsertEmbedding(userId, noteId, embeddingVector)
             logger.info("Successfully saved embedding for note ID $noteId")
         } catch (e: Exception) {
             logger.error("Error saving embedding for note ID: $noteId", e)

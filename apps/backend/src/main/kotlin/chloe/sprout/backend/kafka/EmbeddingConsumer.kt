@@ -44,7 +44,7 @@ class EmbeddingConsumer (
             log.info("Processing note ID: $noteId for embedding update.")
 
             // 임베딩할 콘텐츠 가져오기 - 없는 경우 재시도 할 수 있도록 lock 해제 후 종료
-            val contentToEmbed = noteEmbeddingService.getContentForEmbedding(noteId)
+            val contentToEmbed = noteEmbeddingService.getContentForEmbedding(userId, noteId)
                 ?: run {
                     redisTemplate.delete(lockKey)
                     return
@@ -55,7 +55,7 @@ class EmbeddingConsumer (
 
             // 임베딩 저장
             if (embeddingVector != null) {
-                noteEmbeddingService.saveEmbedding(noteId, embeddingVector)
+                noteEmbeddingService.saveEmbedding(userId, noteId, embeddingVector)
                 log.info("Successfully generated and saved embedding for note ID $noteId")
 
                 // 임베딩 저장 완료 알림 전송

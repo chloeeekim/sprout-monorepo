@@ -178,6 +178,7 @@ class NoteService(
 
         // 유사 임베딩 검색
         val similarEmbeddings = noteEmbeddingRepository.findSimilarEmbeddings(
+            owner = userId,
             noteId = noteId,
             embedding = originEmbedding.embedding!!,
             limit = 3,

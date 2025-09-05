@@ -11,19 +11,19 @@ import java.util.UUID
 interface NoteEmbeddingRepository : JpaRepository<NoteEmbedding, UUID> {
     @Query(value = """
         SELECT * FROM note_embeddings
-        WHERE note_id != :noteId AND (embedding <=> CAST(:embedding AS vector)) < :threshold
+        WHERE owner_id = :owner AND note_id != :noteId AND (embedding <=> CAST(:embedding AS vector)) < :threshold
         ORDER BY embedding <=> CAST(:embedding AS vector)
         LIMIT :limit
     """, nativeQuery = true)
-    fun findSimilarEmbeddings(noteId: UUID, embedding: FloatArray, limit: Int, threshold: Double): List<NoteEmbedding>
+    fun findSimilarEmbeddings(owner: UUID, noteId: UUID, embedding: FloatArray, limit: Int, threshold: Double): List<NoteEmbedding>
 
     @Modifying
     @Query(value = """
-        INSERT INTO note_embeddings (note_id, embedding, created_at, updated_at)
-        VALUES (:noteId, CAST(:embedding AS vector), NOW(), NOW())
+        INSERT INTO note_embeddings (owner, note_id, embedding, created_at, updated_at)
+        VALUES (:owner, :noteId, CAST(:embedding AS vector), NOW(), NOW())
         ON CONFLICT (note_id) DO UPDATE SET
         embedding = CAST(:embedding AS vector),
         updated_at = NOW()
     """, nativeQuery = true)
-    fun upsertEmbedding(noteId: UUID, embedding: FloatArray)
+    fun upsertEmbedding(owner: UUID, noteId: UUID, embedding: FloatArray)
 }

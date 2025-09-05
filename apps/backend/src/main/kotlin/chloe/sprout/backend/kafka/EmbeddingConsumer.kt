@@ -2,20 +2,21 @@ package chloe.sprout.backend.kafka
 
 import chloe.sprout.backend.openai.OpenAiService
 import chloe.sprout.backend.service.NoteEmbeddingService
+import chloe.sprout.backend.service.NoteLinkService
 import chloe.sprout.backend.service.SseService
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
 import java.time.Duration
-import java.util.UUID
 
 @Service
 class EmbeddingConsumer (
     private val openAiService: OpenAiService,
     private val redisTemplate: RedisTemplate<String, String>,
     private val noteEmbeddingService: NoteEmbeddingService,
-    private val sseService: SseService
+    private val sseService: SseService,
+    private val noteLinkService: NoteLinkService
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -57,6 +58,10 @@ class EmbeddingConsumer (
             if (embeddingVector != null) {
                 noteEmbeddingService.saveEmbedding(userId, noteId, embeddingVector)
                 log.info("Successfully generated and saved embedding for note ID $noteId")
+
+                // 유사 노트 링크 업데이트
+                noteLinkService.updateLinksForNote(noteId, userId)
+                log.info("Successfully updated note links for note ID $noteId")
 
                 // 임베딩 저장 완료 알림 전송
                 val notification = mapOf("noteId" to noteId.toString())

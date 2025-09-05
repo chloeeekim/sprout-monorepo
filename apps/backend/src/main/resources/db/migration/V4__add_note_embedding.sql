@@ -5,9 +5,11 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- note_id를 PK 및 FK로 사용
 CREATE TABLE IF NOT EXISTS note_embeddings (
     note_id UUID PRIMARY KEY,
+    owner_id UUID NOT NULL,
     embedding VECTOR(1536),
     created_at TIMESTAMPTZ NOT NULL,
     updated_at TIMESTAMPTZ NOT NULL,
+    FOREIGN KEY (owner_id) REFERENCES users(id),
     CONSTRAINT fk_note_embeddings_on_note FOREIGN KEY (note_id) REFERENCES notes (id) ON DELETE CASCADE
 );
 

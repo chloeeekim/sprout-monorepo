@@ -23,8 +23,5 @@ class Note(
 
     @JoinColumn(name = "folder_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    var folder: Folder? = null,
-
-    @OneToOne(mappedBy = "note", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    var embedding: NoteEmbedding? = null
+    var folder: Folder? = null
 ) : AbstractPersistableEntity()

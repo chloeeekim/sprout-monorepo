@@ -39,11 +39,16 @@ const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
         }
     };
 
-    // TODO: 실제 라우팅 구현
+    const onKnowledgeGraphClick = async () => {
+        unselectFolder();
+        unselectTag();
+        navigate("/graph");
+    };
+
     const menuItems = [
         { icon: <Search size={16} className="text-gray-500" />, name: "검색", action: onSearchClick },
         { icon: <StickyNote size={16} className="text-gray-500" />, name: "모든 노트", action: onAllNotesClick},
-        { icon: <GitFork size={16} className="text-gray-500" />, name: "지식 그래프" },
+        { icon: <GitFork size={16} className="text-gray-500" />, name: "지식 그래프", action: onKnowledgeGraphClick},
         { icon: <Shuffle size={16} className="text-gray-500" />, name: "랜덤 노트 탐색", action: onRandomNoteClick },
     ];
 

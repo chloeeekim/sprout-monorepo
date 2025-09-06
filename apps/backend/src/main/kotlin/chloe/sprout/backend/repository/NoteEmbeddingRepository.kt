@@ -19,7 +19,7 @@ interface NoteEmbeddingRepository : JpaRepository<NoteEmbedding, UUID> {
 
     @Modifying
     @Query(value = """
-        INSERT INTO note_embeddings (owner, note_id, embedding, created_at, updated_at)
+        INSERT INTO note_embeddings (owner_id, note_id, embedding, created_at, updated_at)
         VALUES (:owner, :noteId, CAST(:embedding AS vector), NOW(), NOW())
         ON CONFLICT (note_id) DO UPDATE SET
         embedding = CAST(:embedding AS vector),

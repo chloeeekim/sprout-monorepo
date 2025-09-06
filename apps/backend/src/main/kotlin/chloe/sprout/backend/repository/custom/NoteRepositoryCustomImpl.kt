@@ -44,7 +44,7 @@ class NoteRepositoryCustomImpl(
             result.removeLast()
         }
 
-        return SliceImpl(result, pageable, hasNext);
+        return SliceImpl(result, pageable, hasNext)
     }
 
     private fun ltUpdatedAtAndId(lastUpdatedAt: OffsetDateTime?, id: UUID?): BooleanExpression? {

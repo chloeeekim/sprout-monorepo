@@ -27,3 +27,7 @@
     background: var(--color-gray-300);
     border-radius: 6px;
 }
+
+.react-flow__attribution {
+    display: none;
+}

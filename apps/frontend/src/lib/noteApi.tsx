@@ -5,7 +5,7 @@ import {
     NoteListResponse,
     NoteUpdateRequest,
     NoteUpdateResponse,
-    NoteDetailResponse
+    NoteDetailResponse, NoteSimpleResponse
 } from "@sprout/shared-types";
 
 export const getNotes = async (
@@ -35,6 +35,11 @@ export const getNotes = async (
     }
 
     const response = await apiClient.get(`/api/notes?${queryParams.toString()}`);
+    return response.data.data;
+};
+
+export const getAllNotes = async (): Promise<NoteSimpleResponse[]> => {
+    const response = await apiClient.get(`/api/notes/all`);
     return response.data.data;
 };
 

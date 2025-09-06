@@ -123,8 +123,7 @@ data class NoteListResponse(
 data class NoteSimpleResponse(
     val id: UUID,
     val title: String,
-    val truncatedContent: String?,
-    val isFavorite: Boolean
+    val truncatedContent: String?
 ) {
     companion object {
         fun from(note: Note): NoteSimpleResponse {
@@ -137,8 +136,7 @@ data class NoteSimpleResponse(
                     } else {
                         it
                     }
-                } ?: "",
-                isFavorite = note.isFavorite
+                } ?: ""
             )
         }
     }

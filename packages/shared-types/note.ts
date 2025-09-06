@@ -20,4 +20,4 @@ export type NoteCreateResponse = Note<TagDetailResponse[]>;
 export type NoteUpdateResponse = Note<TagDetailResponse[]>;
 export type NoteDetailResponse = Note<TagDetailResponse[]>;
 export type NoteListResponse = Note<TagDetailResponse[]>;
-export type NoteSimpleResponse = Pick<Note<never>, "id" | "title" | "content" | "isFavorite">;
+export type NoteSimpleResponse = Pick<Note<never>, "id" | "title" | "content">;

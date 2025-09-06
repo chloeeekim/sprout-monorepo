@@ -123,14 +123,14 @@ data class NoteListResponse(
 data class NoteSimpleResponse(
     val id: UUID,
     val title: String,
-    val truncatedContent: String?
+    val content: String?
 ) {
     companion object {
         fun from(note: Note): NoteSimpleResponse {
             return NoteSimpleResponse(
                 id = note.id,
                 title = note.title,
-                truncatedContent = note.content?.let {
+                content = note.content?.let {
                     if (it.length > TRUNCATED_LENGTH) {
                         it.substring(0, TRUNCATED_LENGTH)
                     } else {

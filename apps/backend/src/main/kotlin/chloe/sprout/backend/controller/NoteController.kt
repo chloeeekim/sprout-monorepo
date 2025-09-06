@@ -58,6 +58,12 @@ class NoteController(
         return ResponseEntity.ok(response)
     }
 
+    @GetMapping("/all")
+    fun getAllNotesForGraph(@AuthenticationPrincipal user: CustomUserDetails): ResponseEntity<List<NoteSimpleResponse>> {
+        val response = noteService.getAllNotesForGraph(user.getUserId())
+        return ResponseEntity.ok(response)
+    }
+
     @GetMapping("/{id}/similar")
     fun getSimilarNotes(@AuthenticationPrincipal user: CustomUserDetails, @PathVariable id: UUID): ResponseEntity<List<NoteListResponse>> {
         val response = noteService.findSimilarNotes(id, user.getUserId())

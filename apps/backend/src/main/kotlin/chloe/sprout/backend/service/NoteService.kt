@@ -161,6 +161,15 @@ class NoteService(
     }
 
     @Transactional(readOnly = true)
+    fun getAllNotesForGraph(userId: UUID): List<NoteSimpleResponse> {
+        // Note 목록 조회
+        val notes = noteRepository.findAllByOwnerId(userId)
+
+        // response DTO로 변환 후 응답
+        return notes.map { NoteSimpleResponse.from(it) }
+    }
+
+    @Transactional(readOnly = true)
     fun findSimilarNotes(noteId: UUID, userId: UUID): List<NoteListResponse> {
         // Note 확인
         val originNote = noteRepository.findByIdOrNull(noteId)

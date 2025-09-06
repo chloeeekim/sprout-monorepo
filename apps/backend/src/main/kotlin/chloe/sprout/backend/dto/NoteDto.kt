@@ -6,6 +6,8 @@ import org.openapitools.jackson.nullable.JsonNullable
 import java.time.OffsetDateTime
 import java.util.*
 
+private const val TRUNCATED_LENGTH = 100
+
 data class NoteCreateRequest(
     @field:NotBlank
     val title: String,
@@ -113,6 +115,30 @@ data class NoteListResponse(
                 tags = note.noteTags.map { TagDetailResponse.from(it.tag) },
                 folderId = note.folder?.id,
                 updatedAt = requireNotNull(note.updatedAt)
+            )
+        }
+    }
+}
+
+data class NoteSimpleResponse(
+    val id: UUID,
+    val title: String,
+    val truncatedContent: String?,
+    val isFavorite: Boolean
+) {
+    companion object {
+        fun from(note: Note): NoteSimpleResponse {
+            return NoteSimpleResponse(
+                id = note.id,
+                title = note.title,
+                truncatedContent = note.content?.let {
+                    if (it.length > TRUNCATED_LENGTH) {
+                        it.substring(0, TRUNCATED_LENGTH)
+                    } else {
+                        it
+                    }
+                } ?: "",
+                isFavorite = note.isFavorite
             )
         }
     }

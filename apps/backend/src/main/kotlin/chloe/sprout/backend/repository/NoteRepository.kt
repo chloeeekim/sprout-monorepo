@@ -17,4 +17,6 @@ interface NoteRepository : JpaRepository<Note, UUID>, NoteRepositoryCustom {
         LIMIT 1""",
         nativeQuery = true)
     fun findRandomNoteByOwnerId(owner: UUID): Note?
+
+    fun findAllByOwnerId(ownerId: UUID): List<Note>
 }

@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS note_links (
     FOREIGN KEY (owner_id) REFERENCES users(id),
     FOREIGN KEY (source_note_id) REFERENCES notes(id),
     FOREIGN KEY (target_note_id) REFERENCES notes(id)
-)
+);

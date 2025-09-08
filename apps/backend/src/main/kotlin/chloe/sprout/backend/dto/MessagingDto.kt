@@ -1,4 +1,4 @@
-package chloe.sprout.backend.kafka
+package chloe.sprout.backend.dto
 
 import java.util.UUID
 

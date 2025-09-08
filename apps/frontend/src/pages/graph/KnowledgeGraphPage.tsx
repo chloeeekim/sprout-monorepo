@@ -19,6 +19,7 @@ import {NoteLinkResponse, NoteSimpleResponse} from "@sprout/shared-types";
 import dagre from "dagre";
 import * as d3 from "d3-force";
 import MainLayout from "@/components/layout/MainLayout";
+import NotePreviewPanel from "@/components/ui/NotePreviewPanel";
 
 // Dagre 레이아웃 계산 함수
 const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = "TB") => {
@@ -73,10 +74,13 @@ function applyD3Force(nodes: Node[]) {
 }
 
 function KnowledgeGraphPage() {
+    const [allNotes, setAllNotes] = useState<NoteSimpleResponse[]>([]);
     const [nodes, setNodes] = useState<Node[]>([]);
     const [edges, setEdges] = useState<Edge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
+
+    const selectedNote = allNotes.find(note => note.id === selectedNodeId);
 
     useEffect(() => {
         const fetchGraphData = async () => {
@@ -85,6 +89,8 @@ function KnowledgeGraphPage() {
                     getAllNotes(),
                     getAllNoteLinks()
                 ]);
+
+                setAllNotes(notes);
 
                 const initialNodes: Node[] = notes.map((note: NoteSimpleResponse, index: number) => ({
                     id: note.id,
@@ -206,6 +212,9 @@ function KnowledgeGraphPage() {
                     <Controls />
                     <Background />
                 </ReactFlow>
+                {selectedNote && (
+                    <NotePreviewPanel note={selectedNote} />
+                )}
             </div>
         </MainLayout>
     );

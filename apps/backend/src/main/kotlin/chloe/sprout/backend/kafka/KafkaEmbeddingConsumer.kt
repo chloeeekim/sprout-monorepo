@@ -1,5 +1,6 @@
 package chloe.sprout.backend.kafka
 
+import chloe.sprout.backend.dto.EmbeddingCreateRequest
 import chloe.sprout.backend.openai.OpenAiService
 import chloe.sprout.backend.service.NoteEmbeddingService
 import chloe.sprout.backend.service.NoteLinkService
@@ -12,6 +13,7 @@ import java.time.Duration
 
 @Service
 class EmbeddingConsumer (
+class KafkaEmbeddingConsumer (
     private val openAiService: OpenAiService,
     private val redisTemplate: RedisTemplate<String, String>,
     private val noteEmbeddingService: NoteEmbeddingService,

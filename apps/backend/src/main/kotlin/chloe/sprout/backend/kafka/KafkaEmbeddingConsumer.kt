@@ -6,13 +6,14 @@ import chloe.sprout.backend.service.NoteEmbeddingService
 import chloe.sprout.backend.service.NoteLinkService
 import chloe.sprout.backend.service.SseService
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Profile
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.kafka.annotation.KafkaListener
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Component
 import java.time.Duration
 
-@Service
-class EmbeddingConsumer (
+@Component
+@Profile("kafka")
 class KafkaEmbeddingConsumer (
     private val openAiService: OpenAiService,
     private val redisTemplate: RedisTemplate<String, String>,

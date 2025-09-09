@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from "react";
 import MainLayout from "../../components/layout/MainLayout";
-import {Note, NoteListResponse} from '@sprout/shared-types';
+import type { Note, NoteListResponse } from '@sprout/shared-types';
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
-import { Link, useNavigate } from "react-router-dom";
-import Button from "../../components/ui/Button";
+import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useFolderStore } from "../../stores/folderStore";
 import TopBar from "../../components/ui/TopBar";
 import {useTagStore} from "../../stores/tagStore";
-import {Folder, Folder as FolderIcon, Tag as TagIcon} from "lucide-react";
+import {Folder as FolderIcon, Tag as TagIcon} from "lucide-react";
 
 const NoteListPage: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);

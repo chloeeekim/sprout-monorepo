@@ -1,8 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useLocation, useNavigate, Link, useParams} from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import {Note, NoteUpdateRequest, NoteUpdateResponse, Tag} from "@sprout/shared-types";
-import apiClient from "../../lib/apiClient";
+import type { Note, NoteUpdateRequest } from '@sprout/shared-types';
 import MainLayout from "../../components/layout/MainLayout";
 import LineSkeleton from "../../components/ui/LineSkeleton";
 import TopBar from "../../components/ui/TopBar";
@@ -15,7 +13,7 @@ import {useTagStore} from "../../stores/tagStore";
 import useFormattedTime from "../../hooks/useFormattedTime";
 import { debounce } from "lodash-es";
 import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote, getSimilarNotes} from "../../lib/noteApi";
-import {TagDetailResponse} from "@sprout/shared-types/tag";
+import type { TagDetailResponse } from '@sprout/shared-types/tag';
 import {buildPartialUpdate} from "../../utils/buildPartialUpdate";
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 

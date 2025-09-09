@@ -1,5 +1,4 @@
-import {useEffect, useState} from "react";
-import {NoteSimpleResponse} from "@sprout/shared-types";
+import type { NoteSimpleResponse } from '@sprout/shared-types';
 import {Link} from "react-router-dom";
 
 interface NotePreviewPanelProps {

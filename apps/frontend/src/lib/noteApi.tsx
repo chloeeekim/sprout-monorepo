@@ -1,12 +1,13 @@
 import apiClient from "./apiClient";
-import {
-    Slice,
-    Note,
-    NoteListResponse,
-    NoteUpdateRequest,
-    NoteUpdateResponse,
-    NoteDetailResponse, NoteSimpleResponse
-} from "@sprout/shared-types";
+import type {
+  Slice,
+  Note,
+  NoteListResponse,
+  NoteUpdateRequest,
+  NoteUpdateResponse,
+  NoteDetailResponse,
+  NoteSimpleResponse,
+} from '@sprout/shared-types';
 
 export const getNotes = async (
     initialLoad: boolean,

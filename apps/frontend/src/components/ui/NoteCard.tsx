@@ -1,5 +1,5 @@
 import React from "react";
-import { Note } from "@sprout/shared-types";
+import type { Note } from '@sprout/shared-types';
 import { Star } from "lucide-react";
 import Tag from "./Tag";
 import useFormattedTime from "@/hooks/useFormattedTime";

@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import apiClient from "../../lib/apiClient";
 

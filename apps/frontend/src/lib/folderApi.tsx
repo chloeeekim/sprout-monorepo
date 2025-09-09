@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import { Folder } from "@sprout/shared-types";
+import type { Folder } from '@sprout/shared-types';
 
 export const getFolders = async (): Promise<Folder[]> => {
     const response = await apiClient.get('/api/folders');

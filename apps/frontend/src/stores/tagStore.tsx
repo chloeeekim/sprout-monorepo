@@ -1,5 +1,5 @@
 import {create} from "zustand";
-import {Tag} from "@sprout/shared-types";
+import type { Tag } from '@sprout/shared-types';
 import {createTag, getTags, deleteTag} from "../lib/tagApi";
 
 interface TagState {

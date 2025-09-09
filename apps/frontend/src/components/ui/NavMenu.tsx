@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, StickyNote, GitFork, Shuffle, Tag } from "lucide-react";
-import {Link, useNavigate} from "react-router-dom";
-import apiClient from "../../lib/apiClient";
-import { TagListResponse } from "@sprout/shared-types/tag";
+import { useNavigate} from "react-router-dom";
+import type { TagListResponse } from '@sprout/shared-types/tag';
 import {FolderList} from "./FolderList";
 import { useFolderStore } from "../../stores/folderStore";
 import {TagList} from "@/components/ui/TagList";

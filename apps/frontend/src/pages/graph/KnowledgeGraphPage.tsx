@@ -15,7 +15,10 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import {getAllNoteLinks} from "@/lib/noteLinkApi";
 import {getAllNotes} from "@/lib/noteApi";
-import {NoteLinkResponse, NoteSimpleResponse} from "@sprout/shared-types";
+import type {
+  NoteLinkResponse,
+  NoteSimpleResponse,
+} from '@sprout/shared-types';
 import dagre from "dagre";
 import * as d3 from "d3-force";
 import MainLayout from "@/components/layout/MainLayout";

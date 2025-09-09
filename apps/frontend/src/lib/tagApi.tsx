@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import { Tag } from "@sprout/shared-types";
+import type { Tag } from '@sprout/shared-types';
 
 export const getTags = async (): Promise<Tag[]> => {
     const response = await apiClient.get('/api/tags');

@@ -1,8 +1,7 @@
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import { Link } from "react-router-dom";
 import { Search, Loader2, Star } from "lucide-react";
 import apiClient from "../../lib/apiClient";
-import { Note } from "@sprout/shared-types";
+import type { Note } from '@sprout/shared-types';
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash-es";
 import dayjs from "dayjs";

@@ -13,6 +13,7 @@
     "@microsoft/fetch-event-source": "^2.0.1",
     "@sprout/shared-types": "*",
     "@tailwindcss/vite": "^4.1.11",
+    "@types/node": "^24.3.1",
     "axios": "^1.10.0",
     "clsx": "^2.1.1",
     "d3-force": "^3.0.0",

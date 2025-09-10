@@ -12,6 +12,7 @@ import org.springframework.data.redis.core.RedisKeyValueAdapter
 import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories
 import org.springframework.data.redis.serializer.StringRedisSerializer
+import software.amazon.awssdk.regions.internal.util.ServiceMetadataUtils.hostname
 
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.OFF)
@@ -26,11 +27,12 @@ class RedisConfig(
         config.port = redisProperties.port
 
         val clientConfig = LettuceClientConfiguration.builder()
-            .useSsl()
-            .disablePeerVerification()
-            .build()
 
-        return LettuceConnectionFactory(config, clientConfig)
+        if (redisProperties.ssl.enabled) {
+            clientConfig.useSsl().disablePeerVerification()
+        }
+
+        return LettuceConnectionFactory(config, clientConfig.build())
     }
 
     @Bean

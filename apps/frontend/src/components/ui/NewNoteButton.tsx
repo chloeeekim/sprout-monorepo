@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
-import apiClient from "../../lib/apiClient";
+import apiClient from "@/lib/apiClient";
 
 const NewNoteButton: React.FC = () => {
     const navigate = useNavigate();

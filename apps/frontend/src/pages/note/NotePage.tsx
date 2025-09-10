@@ -1,20 +1,20 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useLocation, useNavigate, Link, useParams} from "react-router-dom";
 import type { Note, NoteUpdateRequest } from '@sprout/shared-types';
-import MainLayout from "../../components/layout/MainLayout";
-import LineSkeleton from "../../components/ui/LineSkeleton";
-import TopBar from "../../components/ui/TopBar";
+import MainLayout from "@/components/layout/MainLayout";
+import LineSkeleton from "@/components/ui/LineSkeleton";
+import TopBar from "@/components/ui/TopBar";
 import {Star, Trash2, Copy, Sparkles} from "lucide-react";
 import clsx from "clsx";
-import {useFolderStore} from "../../stores/folderStore";
-import SingleSelect from "../../components/ui/SingleSelect";
-import MultiSelect from "../../components/ui/MultiSelect";
-import {useTagStore} from "../../stores/tagStore";
-import useFormattedTime from "../../hooks/useFormattedTime";
+import {useFolderStore} from "@/stores/folderStore";
+import SingleSelect from "@/components/ui/SingleSelect";
+import MultiSelect from "@/components/ui/MultiSelect";
+import {useTagStore} from "@/stores/tagStore";
+import useFormattedTime from "@/hooks/useFormattedTime";
 import { debounce } from "lodash-es";
-import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote, getSimilarNotes} from "../../lib/noteApi";
+import {copyNote, deleteNote, getNoteById, toggleIsFavorite, updateNote, getSimilarNotes} from "@/lib/noteApi";
 import type { TagDetailResponse } from '@sprout/shared-types/tag';
-import {buildPartialUpdate} from "../../utils/buildPartialUpdate";
+import {buildPartialUpdate} from "@/utils/buildPartialUpdate";
 import {fetchEventSource} from "@microsoft/fetch-event-source";
 
 const NotePage: React.FC = () => {

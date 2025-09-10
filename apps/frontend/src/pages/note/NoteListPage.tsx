@@ -3,11 +3,17 @@ import MainLayout from "../../components/layout/MainLayout";
 import type { Note, NoteListResponse } from '@sprout/shared-types';
 import apiClient from "../../lib/apiClient";
 import NoteCard from "../../components/ui/NoteCard";
+import MainLayout from "@/components/layout/MainLayout";
+import apiClient from "@/lib/apiClient";
+import NoteCard from "@/components/ui/NoteCard";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useFolderStore } from "../../stores/folderStore";
 import TopBar from "../../components/ui/TopBar";
 import {useTagStore} from "../../stores/tagStore";
+import { useFolderStore } from "@/stores/folderStore";
+import TopBar from "@/components/ui/TopBar";
+import {useTagStore} from "@/stores/tagStore";
 import {Folder as FolderIcon, Tag as TagIcon} from "lucide-react";
 
 const NoteListPage: React.FC = () => {

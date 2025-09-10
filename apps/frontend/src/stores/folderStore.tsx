@@ -1,6 +1,6 @@
 import {create} from "zustand";
 import type { Folder } from '@sprout/shared-types';
-import { getFolders, createFolder, updateFolder, deleteFolder } from "../lib/folderApi";
+import { getFolders, createFolder, updateFolder, deleteFolder } from "@/lib/folderApi";
 
 interface FolderState {
     folders: Folder[];

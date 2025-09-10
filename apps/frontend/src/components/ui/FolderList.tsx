@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useFolderStore } from "../../stores/folderStore";
+import { useEffect, useState } from "react";
+import { useFolderStore } from "@/stores/folderStore";
 import { FolderPlus, Trash2, Edit, Check, X, Folder as FolderIcon } from "lucide-react";
 import {useTagStore} from "@/stores/tagStore";
 

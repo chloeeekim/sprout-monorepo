@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useTagStore } from "../../stores/tagStore";
+import { useEffect } from "react";
+import { useTagStore } from "@/stores/tagStore";
 import {Tag as TagIcon, Trash2} from "lucide-react";
 import {useFolderStore} from "@/stores/folderStore";
 

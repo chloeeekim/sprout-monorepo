@@ -1,19 +1,17 @@
-import React, { useState } from "react";
-import { Search, StickyNote, GitFork, Shuffle, Tag } from "lucide-react";
+import React from "react";
+import { Search, StickyNote, GitFork, Shuffle } from "lucide-react";
 import { useNavigate} from "react-router-dom";
-import type { TagListResponse } from '@sprout/shared-types/tag';
 import {FolderList} from "./FolderList";
-import { useFolderStore } from "../../stores/folderStore";
-import {TagList} from "@/components/ui/TagList";
+import { useFolderStore } from "@/stores/folderStore";
+import {TagList} from "./TagList";
 import {useTagStore} from "@/stores/tagStore";
-import {getRandomNote} from "../../lib/noteApi";
+import {getRandomNote} from "@/lib/noteApi";
 
 interface NavMenuProps {
     onSearchClick: () => void;
 }
 
 const NavMenu: React.FC<NavMenuProps> = ({ onSearchClick }) => {
-    const [tags, setTags] = useState<TagListResponse[]>([]);
     const navigate = useNavigate();
     const { unselectFolder } = useFolderStore();
     const { unselectTag } = useTagStore();

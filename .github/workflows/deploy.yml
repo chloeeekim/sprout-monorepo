@@ -46,7 +46,11 @@ jobs:
       - name: Find Jar File
         id: jar
         run: |
-          echo "JAR_FILE=$(ls apps/backend/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
+          JAR_FILE=$(ls apps/backend/build/libs/*.jar | grep -v 'plain.jar' | head -n 1)
+          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
+
+      - name: Print Jar File
+        run: echo "JarFile=${{ env.JAR_FILE }}
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21

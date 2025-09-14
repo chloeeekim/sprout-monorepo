@@ -34,6 +34,3 @@ spring:
     aws:
       region:
         static: ${AWS_REGION:ap-northeast-2}
-      credentials:
-        secret-key: ${sqs.secret-key}
-        access-key: ${sqs.access-key}

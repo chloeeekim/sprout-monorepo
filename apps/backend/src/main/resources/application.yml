@@ -2,7 +2,7 @@ spring:
   application:
     name: backend
   config:
-    import: application-secret.yml
+    import: optional:application-secret.yml
   datasource:
     url: jdbc:postgresql://localhost:5432/sprout_db
     username: ${db.username}

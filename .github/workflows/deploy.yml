@@ -40,8 +40,13 @@ jobs:
           format: YYYY-MM-DDTHH-mm-ss
           utcOffset: "+09:00"
 
-      - name: Show Current Time
-        run: echo "CurrentTime=$"
+      - name: Print Current Time
+        run: echo "CurrentTime=${{ steps.current-time.outputs.formattedTime }}"
+
+      - name: Find Jar File
+        id: jar
+        run: |
+          echo "JAR_FILE=$(ls apps/backend/build/libs/*.jar | head -n 1)" >> $GITHUB_ENV
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21
@@ -52,4 +57,4 @@ jobs:
           environment_name: Sprout-env
           version_label: github-${{ steps.current-time.outputs.formattedTime }}
           region: ${{ env.REGION }}
-          deployment_package: apps/backend/build/libs/*.jar
+          deployment_package: ${{ env.JAR_FILE }}

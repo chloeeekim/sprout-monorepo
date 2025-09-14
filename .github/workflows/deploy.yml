@@ -50,7 +50,7 @@ jobs:
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_ENV
 
       - name: Print Jar File
-        run: echo "JarFile=${{ env.JAR_FILE }}
+        run: echo "JarFile=${{ env.JAR_FILE }}"
 
       - name: Deploy to Elastic Beanstalk
         uses: einaregilsson/beanstalk-deploy@v21

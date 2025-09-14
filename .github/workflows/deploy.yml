@@ -55,6 +55,6 @@ jobs:
           aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           application_name: sprout
           environment_name: Sprout-env
-          version_label: github-${{ steps.current-time.outputs.formattedTime }}
+          version_label: github-action-${{ steps.current-time.outputs.formattedTime }}
           region: ${{ env.REGION }}
           deployment_package: ${{ env.JAR_FILE }}

@@ -34,3 +34,5 @@ spring:
     aws:
       region:
         static: ${AWS_REGION:ap-northeast-2}
+      sqs:
+        enabled: true

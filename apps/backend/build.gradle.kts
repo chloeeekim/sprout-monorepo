@@ -62,8 +62,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
 
     // AWS SQS
-//    implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1")
-    implementation("software.amazon.awssdk:sqs:2.22.13")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs:3.1.1")
 
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")

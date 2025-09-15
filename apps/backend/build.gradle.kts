@@ -20,6 +20,12 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom("io.awspring.cloud:spring-cloud-aws-dependencies:3.4.0")
+    }
+}
+
 dependencies {
     // Spring Boot Starters
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -62,8 +68,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
 
     // AWS SQS
-    implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs:3.4.0")
-    implementation("software.amazon.awssdk:apache5-client:2.32.0-PREVIEW")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs")
 
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")

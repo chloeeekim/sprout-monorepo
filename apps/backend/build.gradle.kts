@@ -67,8 +67,9 @@ dependencies {
     // Kafka
     implementation("org.springframework.kafka:spring-kafka")
 
-    // AWS SQS
+    // AWS SQS (Netty HTTP Client)
     implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs")
+    implementation("software.amazon.awssdk:netty-nio-client")
 
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")

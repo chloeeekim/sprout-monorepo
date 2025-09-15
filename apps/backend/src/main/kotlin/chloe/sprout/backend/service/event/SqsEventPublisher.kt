@@ -4,14 +4,14 @@ import chloe.sprout.backend.dto.EmbeddingCreateRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import software.amazon.awssdk.services.sqs.SqsClient
+import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 import java.util.UUID
 
 @Component
 @Profile("sqs")
 class SqsEventPublisher(
-    private val sqsClient: SqsClient,
+    private val sqsAsyncClient: SqsAsyncClient,
     private val objectMapper: ObjectMapper
 ) : EventPublisher {
     companion object {
@@ -27,6 +27,6 @@ class SqsEventPublisher(
             .messageGroupId(userId.toString())
             .build()
 
-        sqsClient.sendMessage(request)
+        sqsAsyncClient.sendMessage(request)
     }
 }

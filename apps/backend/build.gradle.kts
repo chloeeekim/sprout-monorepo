@@ -63,6 +63,7 @@ dependencies {
 
     // AWS SQS
     implementation("io.awspring.cloud:spring-cloud-aws-starter-sqs:3.4.0")
+    implementation("software.amazon.awssdk:apache5-client:2.32.0-PREVIEW")
 
     // Flyway Database Migration
     implementation("org.flywaydb:flyway-core")

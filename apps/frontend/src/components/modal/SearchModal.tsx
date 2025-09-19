@@ -1,8 +1,7 @@
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import { Search, Loader2, Star } from "lucide-react";
-import apiClient from "../../lib/apiClient";
-import type { Note } from '@sprout/shared-types';
 import apiClient from "@/lib/apiClient";
+import type { NoteListResponse } from '@sprout/shared-types';
 import { useNavigate } from "react-router-dom";
 import { debounce } from "lodash-es";
 import dayjs from "dayjs";
@@ -15,7 +14,7 @@ interface SearchModalProps {
 const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [searchResults, setSearchResults] = useState<Note[]>([]);
+    const [searchResults, setSearchResults] = useState<NoteListResponse[]>([]);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
     const inputRef = useRef<HTMLInputElement>(null);

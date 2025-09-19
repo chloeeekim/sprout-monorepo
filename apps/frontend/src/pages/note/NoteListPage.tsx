@@ -1,23 +1,18 @@
 import React, { useEffect, useState } from "react";
-import MainLayout from "../../components/layout/MainLayout";
-import type { Note, NoteListResponse } from '@sprout/shared-types';
-import apiClient from "../../lib/apiClient";
-import NoteCard from "../../components/ui/NoteCard";
 import MainLayout from "@/components/layout/MainLayout";
+import type { NoteListResponse } from '@sprout/shared-types';
 import apiClient from "@/lib/apiClient";
 import NoteCard from "@/components/ui/NoteCard";
 import { useNavigate } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { useFolderStore } from "../../stores/folderStore";
-import TopBar from "../../components/ui/TopBar";
-import {useTagStore} from "../../stores/tagStore";
 import { useFolderStore } from "@/stores/folderStore";
 import TopBar from "@/components/ui/TopBar";
 import {useTagStore} from "@/stores/tagStore";
 import {Folder as FolderIcon, Tag as TagIcon} from "lucide-react";
+import {getNotes} from "@/lib/noteApi";
 
 const NoteListPage: React.FC = () => {
-    const [notes, setNotes] = useState<Note[]>([]);
+    const [notes, setNotes] = useState<NoteListResponse[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasNext, setHasNext] = useState(true);
@@ -50,26 +45,13 @@ const NoteListPage: React.FC = () => {
 
         setLoading(true);
         setError(null);
+
         try {
-            const queryParams = new URLSearchParams();
-            queryParams.append("size", PAGE_SIZE.toString());
-
-            if (selectedFolderId) {
-                queryParams.append("folderId", selectedFolderId);
-            }
-            if (selectedTagId) {
-                queryParams.append("tagId", selectedTagId);
-            }
-            if (!initialLoad && lastUpdatedAt && lastId) {
-                queryParams.append("lastUpdatedAt", lastUpdatedAt);
-                queryParams.append("lastId", lastId);
-            }
-
-            const response = await apiClient.get(`/api/notes?${queryParams.toString()}`)
-            const content: Array<NoteListResponse> = response.data.data.content;
+            const response = await getNotes(initialLoad, lastUpdatedAt, lastId, selectedTagId, null, selectedFolderId, PAGE_SIZE);
+            const content = response.content;
 
             setNotes((prevNotes) => initialLoad ? content : [...prevNotes, ...content]);
-            setHasNext(!response.data.data.last);
+            setHasNext(!response.last);
 
             if (content.length > 0) {
                 setLastUpdatedAt(content[content.length - 1].updatedAt);

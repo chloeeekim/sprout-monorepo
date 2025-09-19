@@ -6,7 +6,6 @@
       "@/*": ["./src/*"]
     },
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true

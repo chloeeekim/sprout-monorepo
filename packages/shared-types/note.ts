@@ -1,4 +1,4 @@
-import { TagDetailResponse } from './tag';
+import type { TagDetailResponse } from './tag';
 
 export interface Note<TTags> {
     id: string;

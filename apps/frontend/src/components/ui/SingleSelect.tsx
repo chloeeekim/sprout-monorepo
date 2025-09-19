@@ -44,7 +44,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
         setSearchTerm('');
     };
 
-    const handleDelete = (value: string) => {
+    const handleDelete = () => {
         onChange(null);
     }
 
@@ -64,7 +64,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({
                     <div key={selectedOption.value} className="bg-gray-200 text-gray-700 rounded-full px-2 py-1 flex items-center gap-1 text-sm">
                         <span>{selectedOption.label}</span>
                         {isOpen && (
-                            <button onClick={(e) => {e.stopPropagation(); handleDelete(selectedOption?.value); }}
+                            <button onClick={(e) => {e.stopPropagation(); handleDelete(); }}
                                     className="hover:text-red-500 rounded-full cursor-pointer" >
                                 <X size={14} />
                             </button>

@@ -41,7 +41,8 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
     const filteredOptions = options.filter((option) => option.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const selectedOptions = selected.map(v => options.find(o => o.value === v)).filter(Boolean);
+    const selectedOptions = selected.map(v => options.find(o => o.value === v))
+        .filter((o): o is Option => o !== undefined);
 
     useEffect(() => {
         const handleClickOutside = (event: globalThis.MouseEvent) => {
@@ -58,7 +59,10 @@ const MultiSelect: React.FC<MultiSelectProps> = ({
 
     useEffect(() => {
         if (created) {
-            onChange([...selected, options.find((option) => option.label === searchTerm)?.value])
+            const newValue = options.find(option => option.label === searchTerm)?.value;
+            if (newValue) {
+                onChange([...selected, newValue]);
+            }
             setSearchTerm('');
             setCreated(false);
         }

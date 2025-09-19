@@ -19,7 +19,7 @@ const useFormattedTime = (date?: string) => {
     if (!date) return "";
 
     const dayjsDate = dayjs(date);
-    return dayjsDate.format("YYYY-MM-DD HH:mm") + " · " + dayjsDate.fromNow();
+    return dayjsDate.format("YYYY-MM-DD HH:mm") + " · " + dayjsDate.from(dayjs(now));
 };
 
 export default useFormattedTime;

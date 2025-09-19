@@ -9,3 +9,4 @@ if [ -n "$VERCEL_GIT_PREVIOUS_SHA" ]; then
 fi
 
 echo "Changes detected in apps/frontend, continuing build..."
+exit 1

@@ -31,7 +31,7 @@ const NotePage: React.FC = () => {
     const [isFavorite, setIsFavorite] = useState(false);
 
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [_error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const { id } = useParams<{ id: string }>();
@@ -113,7 +113,7 @@ const NotePage: React.FC = () => {
     }, [similarNotes]);
 
     const executeUpdate = useCallback (async () => {
-        if (!id) return;
+        if (!id || !initial || !updated) return;
 
         const payload = buildPartialUpdate(initial, updated);
         if (Object.keys(payload).length === 0) return; // 변경사항이 없는 경우 요청 안 함
@@ -156,7 +156,7 @@ const NotePage: React.FC = () => {
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
                 // 연결이 열렸을 때
-                onopen(response) {
+                onopen: async (response) => {
                     if (response.ok && response.headers.get('content-type') === 'text/event-stream') {
                         console.log("SSE connection opened");
                     } else {

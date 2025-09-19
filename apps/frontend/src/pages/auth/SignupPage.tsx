@@ -4,6 +4,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import apiClient from "@/lib/apiClient";
 
 const SignupPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -21,8 +22,8 @@ const SignupPage: React.FC = () => {
         }
 
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/users/signup', {
+            const response = await apiClient.post(
+                '/api/users/signup', {
                     email: email,
                     password: password,
                     name: name

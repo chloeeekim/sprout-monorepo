@@ -4,6 +4,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import apiClient from "@/lib/apiClient";
 
 const LoginPage: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -16,10 +17,10 @@ const LoginPage: React.FC = () => {
         setError(null);
 
         try {
-            const response = await axios.post(
-                'http://localhost:8080/api/users/login', {
+            const response = await apiClient.post(
+                '/api/users/login', {
                     email: email,
-                    password: password,
+                    password: password
                 }
             );
 

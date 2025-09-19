@@ -5,11 +5,13 @@ import ReactFlow, {
     applyEdgeChanges,
     applyNodeChanges,
     addEdge,
-    Node,
-    Edge,
-    NodeChange,
-    EdgeChange,
-    Connection, NodeMouseHandler, EdgeMouseHandler,
+    type Node,
+    type Edge,
+    type NodeChange,
+    type EdgeChange,
+    type Connection,
+    type NodeMouseHandler,
+    type EdgeMouseHandler,
 } from 'reactflow';
 
 import 'reactflow/dist/style.css';

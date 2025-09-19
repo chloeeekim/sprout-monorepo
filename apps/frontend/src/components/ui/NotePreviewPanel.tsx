@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 
 interface NotePreviewPanelProps {
     note: NoteSimpleResponse;
-    onClose: () => void;
+    onClose?: () => void;
 }
 
 const NotePreviewPanel: React.FC<NotePreviewPanelProps> = ({ note, onClose }) => {

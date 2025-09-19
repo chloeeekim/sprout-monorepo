@@ -1,5 +1,9 @@
 export interface Folder {
     id: string;
     name: string;
-    noteCount: number;
+    count: number;
 }
+
+export type FolderCreateResponse = Folder;
+export type FolderUpdateResponse = Folder;
+export type FolderListResponse = Folder;

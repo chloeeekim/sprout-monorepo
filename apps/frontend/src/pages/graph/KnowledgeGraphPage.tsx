@@ -97,7 +97,7 @@ function KnowledgeGraphPage() {
 
                 setAllNotes(notes);
 
-                const initialNodes: Node[] = notes.map((note: NoteSimpleResponse, index: number) => ({
+                const initialNodes: Node[] = notes.map((note: NoteSimpleResponse, _index: number) => ({
                     id: note.id,
                     data: {label: note.title},
                     position: { x: 0, y: 0 }, // 초기 위치는 0, 0으로 설정
@@ -135,16 +135,16 @@ function KnowledgeGraphPage() {
     }, []);
 
     // 노드 클릭 시 하이라이트 처리
-    const onNodeClick: NodeMouseHandler = useCallback((event, node) => {
+    const onNodeClick: NodeMouseHandler = useCallback((_event, node) => {
         setSelectedNodeId(node.id);
         setSelectedEdgeId(null);
     }, []);
 
     // 엣지 클릭 시 하이라이트 처리
-    const onEdgeClick: EdgeMouseHandler = useCallback((event, edge) => {
+    const onEdgeClick: EdgeMouseHandler = useCallback((_event, edge) => {
         setSelectedEdgeId(edge.id);
         setSelectedNodeId(null);
-    })
+    }, []);
 
     // 배경 클릭 시 하이라이트 해제
     const onPaneClick = useCallback(() => {

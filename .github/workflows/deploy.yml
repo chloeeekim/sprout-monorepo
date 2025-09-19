@@ -3,6 +3,8 @@ name: Deploy Backend to Elastic Beanstalk
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'apps/backend/**'
   workflow_dispatch:
 
 jobs:

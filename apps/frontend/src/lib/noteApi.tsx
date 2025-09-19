@@ -1,12 +1,12 @@
 import apiClient from "./apiClient";
 import type {
-  Slice,
-  Note,
-  NoteListResponse,
-  NoteUpdateRequest,
-  NoteUpdateResponse,
-  NoteDetailResponse,
-  NoteSimpleResponse,
+    Slice,
+    NoteListResponse,
+    NoteUpdateRequest,
+    NoteUpdateResponse,
+    NoteDetailResponse,
+    NoteSimpleResponse,
+    NoteCreateResponse,
 } from '@sprout/shared-types';
 
 export const getNotes = async (
@@ -17,7 +17,7 @@ export const getNotes = async (
     keyword: string | null,
     folderId: string | null,
     size: number
-): Promise<Slice<Note[]>> => {
+): Promise<Slice<NoteListResponse>> => {
     const queryParams = new URLSearchParams();
     queryParams.append("size", size.toString());
 
@@ -44,7 +44,7 @@ export const getAllNotes = async (): Promise<NoteSimpleResponse[]> => {
     return response.data.data;
 };
 
-export const getNoteById = async (id: string): Promise<Note> => {
+export const getNoteById = async (id: string): Promise<NoteDetailResponse> => {
     const response = await apiClient.get(`/api/notes/${id}`);
     return response.data.data;
 };
@@ -54,7 +54,7 @@ export const getRandomNote = async (): Promise<NoteDetailResponse> => {
     return response.data.data;
 }
 
-export const createNote = async (): Promise<Note> => {
+export const createNote = async (): Promise<NoteCreateResponse> => {
     const newNote = {
         title: "Untitled",
         content: null,
@@ -66,7 +66,7 @@ export const createNote = async (): Promise<Note> => {
     return response.data.data;
 };
 
-export const copyNote = async (id: string): Promise<Note> => {
+export const copyNote = async (id: string): Promise<NoteCreateResponse> => {
     const response = await apiClient.post(`/api/notes/${id}/copy`);
     return response.data.data;
 };
@@ -76,7 +76,7 @@ export const updateNote = async (id: string, request: Partial<NoteUpdateRequest>
     return response.data.data;
 }
 
-export const toggleIsFavorite = async (id: string): Promise<Note> => {
+export const toggleIsFavorite = async (id: string): Promise<NoteUpdateResponse> => {
     const response = await apiClient.post(`/api/notes/${id}/favorite`);
     return response.data.data;
 };

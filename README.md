@@ -1,20 +1,20 @@
 # Sprout : 디지털 정원 노트 서비스
 
-## 🔍 Overview
+### 🔍 Overview
 
 - Kotlin, Spring Boot, React 기반 노트 관리 및 지식 그래프 시각화 서비스 개발
 - OpenAI Embedding을 통한 유사 노트 추천 및 pg_trgm 기반 검색 기능 구현
 - Kafka, SQS 기반 비동기 메시지 처리 및 SSE 기반 실시간 알림 구현
 - AWS, Vercel 환경에서 배포 및 GitHub Actions 기반 CI/CD 구축
 
-## 🛠️ Tech Stack
+### 🛠️ Tech Stack
 
 - Backend: Kotlin, Spring Boot (JPA, QueryDSL)
 - Database: PostgreSQL, Redis
 - Messaging: Kafka, SQS
 - Infra: AWS (Elastic Beanstalk, RDS, ElastiCache), Vercel, GitHub Actions
 
-## 📐 Architecture
+### 📐 Architecture
 
 - System Architecture
 ![Sprout system architecture.png](readme_assets/Sprout%20system%20architecture.png)
@@ -22,7 +22,7 @@
 - Deployment Architecture
 ![Sprout deployment architecture.png](readme_assets/Sprout%20deployment%20architecture.png)
 
-## 👩‍💻 Key Implementations
+### 👩‍💻 Key Implementations
 
 - OpenAI Embedding + 메시지 큐 기반 비동기 추천 시스템 구현
 - Spring Profile 기반 Kafka/SQS 선택 구조 설계
@@ -30,7 +30,7 @@
 - QueryDSL 기반 No-offset 페이징으로 대량 데이터 조회 개선
 - SSE 기반 실시간 알림 처리
 
-## 🧠 Problem Solving
+### 🧠 Problem Solving
 
 1. **pg_trgm 기반 검색 성능 개선**
     - LIKE 기반 검색 방식의 성능 한계

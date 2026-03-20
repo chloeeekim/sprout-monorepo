@@ -10,6 +10,7 @@
 ### 🛠️ Tech Stack
 
 - Backend: Kotlin, Spring Boot (JPA, QueryDSL)
+- Frontend: React, Vite, Tailwind CSS, Axios
 - Database: PostgreSQL, Redis
 - Messaging: Kafka, SQS
 - Infra: AWS (Elastic Beanstalk, RDS, ElastiCache), Vercel, GitHub Actions
@@ -29,6 +30,8 @@
 - pg_trgm + GIN 인덱스 기반 유사도 검색 및 성능 최적화
 - QueryDSL 기반 No-offset 페이징으로 대량 데이터 조회 개선
 - SSE 기반 실시간 알림 처리
+- Flyway 기반 데이터베이스 마이그레이션 자동화
+- GitHub Actions, AWS Elastic Beanstalk, Vercel 기반 배포 및 운영 자동화 구축
 
 ### 🧠 Problem Solving
 

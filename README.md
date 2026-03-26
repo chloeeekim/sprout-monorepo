@@ -2,10 +2,10 @@
 
 ### 🔍 Overview
 
-- Kotlin, Spring Boot, React 기반 노트 관리 및 지식 그래프 시각화 서비스 개발
-- OpenAI Embedding을 통한 유사 노트 추천 및 pg_trgm 기반 검색 기능 구현
-- Kafka, SQS 기반 비동기 메시지 처리 및 SSE 기반 실시간 알림 구현
-- AWS, Vercel 환경에서 배포 및 GitHub Actions 기반 CI/CD 구축
+Sprout는 노트 간의 연관 관계를 기반으로 지식을 탐색할 수 있는 노트 서비스입니다. 기존 노트 서비스는 단순 저장 기능에 집중되어 있어 노트 간 관계를 탐색하거나 새로운 인사이트를 얻기 어렵다는 문제가 있었습니다. 따라서 노트 간 연결성과 추천 기능을 통해 지식 확장을 돕는 것을 목표로 개발하였습니다.
+
+- Kotlin, Spring Boot, Kafka, SQS, PostgreSQL, Redis, AWS
+- 개인 프로젝트 (2025.07 - 2025.09)
 
 ### 🛠️ Tech Stack
 
